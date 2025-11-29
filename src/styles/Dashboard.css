@@ -1,0 +1,350 @@
+/* Dashboard.css - Styling cho Dashboard */
+
+.dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header h1 {
+  color: #333;
+  margin: 0;
+  font-size: 28px;
+}
+
+.btn-logout {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-logout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+}
+
+.dashboard-content {
+  width: 95%; /* Tăng độ rộng để chứa được nhiều cột hơn */
+  margin: 0 auto; /* Giữ cho nội dung luôn ở giữa */
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card h2 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 20px;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.user-info {
+  margin-bottom: 20px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #666;
+  font-weight: bold;
+  min-width: 120px;
+}
+
+.info-value {
+  color: #333;
+  text-align: right;
+}
+
+.role-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.success-message {
+  color: #27ae60;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 15px;
+}
+
+.dashboard-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-card li {
+  color: #666;
+  padding: 12px 0;
+  padding-left: 25px;
+  position: relative;
+  line-height: 1.6;
+}
+
+.dashboard-card li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* Styling for permissions list */
+.info-row-permissions {
+  align-items: flex-start; /* Align label to the top */
+}
+
+.permissions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.permissions-list li {
+  background-color: #f0f0f0;
+  color: #555;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: help; /* Show help cursor on hover since there is a title */
+  transition: background-color 0.2s;
+  /* Resetting properties from the other li style */
+  line-height: 1.5; 
+  position: static;
+}
+
+.permissions-list li:before {
+  content: none; /* Remove the checkmark */
+}
+
+.permissions-list li:hover {
+  background-color: #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 22px;
+  }
+
+  .btn-logout {
+    width: 100%;
+  }
+
+  .info-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .info-label {
+    min-width: auto;
+  }
+
+  .info-value {
+    text-align: left;
+  }
+
+  .permissions-list {
+    justify-content: flex-start;
+  }
+}
+
+.header-user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+  max-height: 500px; /* Giới hạn chiều cao tối đa bằng 500px */
+  overflow-y: auto; /* Tự động thêm thanh cuộn dọc khi nội dung vượt quá */
+}
+
+table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+th {
+  background-color: #f4f6f8;
+  font-weight: 600;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+.btn-action {
+  /* padding: 6px 12px; */ /* No longer need padding */
+  border: none;
+  background-color: transparent; /* Remove background */
+  cursor: pointer;
+  font-size: 16px; /* Increase icon size slightly */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out; /* Smooth transition for transform and color */
+}
+
+.btn-edit { color: #f39c12; } /* Orange icon color */
+.btn-delete { color: #e74c3c; } /* Red icon color */
+
+.action-buttons {
+  display: flex;
+  gap: 8px; /* Space between buttons */
+  justify-content: center; /* Center buttons within the cell */
+  align-items: center;
+}
+
+.btn-action:hover {
+  transform: scale(1.2); /* Enlarge icon on hover */
+}
+
+/* Filter Styles */
+.filter-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.date-range {
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+
+.date-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-filter label {
+  font-size: 14px;
+  color: #555;
+  white-space: nowrap;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Styles for permissions cell in table */
+.permissions-cell {
+  position: relative;
+  cursor: help;
+  display: inline-block;
+}
+
+.permission-count {
+  background-color: #eef2ff; /* Màu nền nhẹ nhàng */
+  color: #4f46e5; /* Màu chữ đậm */
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #c7d2fe;
+}
+
+.permissions-cell:hover::after {
+  content: attr(title); /* Lấy nội dung từ thuộc tính title */
+  position: absolute;
+  bottom: 125%; /* Hiển thị tooltip phía trên */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: pre-wrap; /* Cho phép xuống dòng nếu danh sách quá dài */
+  z-index: 10;
+  width: max-content; /* Độ rộng vừa với nội dung */
+  max-width: 300px; /* Giới hạn độ rộng tối đa */
+  text-align: left;
+}
