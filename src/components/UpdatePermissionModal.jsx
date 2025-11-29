@@ -5,14 +5,12 @@ import '../styles/Modal.css';
 import Toast from './Toast';
 
 const UpdatePermissionModal = ({ permission, onClose, onPermissionUpdated }) => {
-  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (permission) {
-      setName(permission.name);
       setDescription(permission.description);
     }
   }, [permission]);
@@ -22,21 +20,22 @@ const UpdatePermissionModal = ({ permission, onClose, onPermissionUpdated }) => 
     setError(null);
 
     try {
-      const updatedPermission = { name, description };
-      await permissionAPI.update(permission.id, updatedPermission); // Giả sử có hàm update
+      const updatedPermission = { description }; // Only send description
+      await permissionAPI.update(permission.name, updatedPermission); 
       setToast({ message: 'Cập nhật quyền thành công!', type: 'success' });
       onPermissionUpdated();
-      setTimeout(onClose, 1500); // Đóng modal sau khi thông báo toast hiển thị
+      onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật quyền.');
-      setToast({ message: error, type: 'error' });
+      const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật quyền.';
+      setError(errorMessage);
+      setToast({ message: errorMessage, type: 'error' });
     }
   };
 
   if (!permission) return null;
 
   return (
-    <div className="modal-backdrop">
+    <div className="modal-overlay">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <div className="modal-content">
         <div className="modal-header">
@@ -45,19 +44,10 @@ const UpdatePermissionModal = ({ permission, onClose, onPermissionUpdated }) => 
         </div>
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
-            <label htmlFor="permissionName">Tên quyền</label>
-            <input
-              id="permissionName"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
             <label htmlFor="permissionDescription">Mô tả</label>
             <textarea
               id="permissionDescription"
+              className="modal-textarea" // Added class for styling
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />

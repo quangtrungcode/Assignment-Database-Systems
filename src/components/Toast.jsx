@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { FaExclamationTriangle } from 'react-icons/fa'; // Import icon
 import '../styles/Toast.css';
 
 function Toast({ message, type = 'error', duration = 5000, onClose }) {
@@ -22,7 +23,7 @@ function Toast({ message, type = 'error', duration = 5000, onClose }) {
   const toastContent = (
     <div className={`toast toast-${type}`}>
       <div className="toast-content">
-        {type === 'error' && <span className="toast-icon">✕</span>}
+        {type === 'error' && <FaExclamationTriangle className="toast-icon" />} {/* Use FaExclamationTriangle */}
         {type === 'success' && <span className="toast-icon">✓</span>}
         <div className="toast-message">
           {Array.isArray(message)

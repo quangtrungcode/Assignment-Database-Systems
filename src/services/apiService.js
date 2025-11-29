@@ -152,8 +152,8 @@ export const permissionAPI = {
   update: (id, permissionData) => {
     return api.put(`/identity/permissions/${id}`, permissionData);
   },
-  delete: (id) => {
-    return api.delete(`/identity/permissions/${id}`);
+  delete: (permissionName) => {
+    return api.delete(`/identity/permissions/${permissionName}`);
   },
 };
 

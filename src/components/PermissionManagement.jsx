@@ -1,7 +1,9 @@
 // src/components/PermissionManagement.jsx
 import React, { useState, useEffect } from 'react';
+import { FaEdit, FaTrash } from 'react-icons/fa'; // Import icons
 import { permissionAPI } from '../services/apiService';
 import UpdatePermissionModal from './UpdatePermissionModal';
+import ConfirmationModal from './ConfirmationModal'; // Import ConfirmationModal
 import Toast from './Toast';
 import '../styles/Dashboard.css'; // Sử dụng chung file CSS
 
@@ -12,6 +14,8 @@ const PermissionManagement = () => {
   const [toast, setToast] = useState(null);
   const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState(null);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false); // State for confirmation modal visibility
+  const [permissionToDeleteId, setPermissionToDeleteId] = useState(null); // State to store the ID of the permission to delete
 
   const fetchPermissions = async () => {
     setLoading(true);
@@ -23,8 +27,16 @@ const PermissionManagement = () => {
         setPermissions([]);
       }
     } catch (err) {
-      setError('Không thể tải danh sách quyền.');
-      setToast({ message: 'Không thể tải danh sách quyền.', type: 'error' });
+      let errorMessage = 'Đã xảy ra lỗi không xác định.'; // Default generic message
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.request) {
+        errorMessage = 'Không thể kết nối đến máy chủ để tải danh sách quyền. Vui lòng kiểm tra kết nối mạng của bạn.';
+      } else if (err.message) {
+        errorMessage = `Lỗi tải quyền: ${err.message}. Vui lòng thử lại.`;
+      }
+      setError(errorMessage);
+      setToast({ message: errorMessage, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -39,21 +51,38 @@ const PermissionManagement = () => {
     setUpdateModalOpen(true);
   };
 
-  const handleDelete = async (permissionId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa quyền này?')) {
-      try {
-        await permissionAPI.delete(permissionId);
-        setToast({ message: 'Xóa quyền thành công!', type: 'success' });
-        fetchPermissions(); // Tải lại danh sách
-      } catch (err) {
-        setToast({ message: 'Lỗi khi xóa quyền.', type: 'error' });
+  const handleDelete = (permissionId) => {
+    setPermissionToDeleteId(permissionId);
+    setShowConfirmationModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!permissionToDeleteId) return;
+
+    try {
+      await permissionAPI.delete(permissionToDeleteId);
+      setToast({ message: 'Xóa quyền thành công!', type: 'success' });
+      fetchPermissions(); // Tải lại danh sách
+    } catch (err) {
+      let errorMessage = 'Đã xảy ra lỗi không xác định.'; // Default generic message
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.request) {
+        errorMessage = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.';
+      } else if (err.message) {
+        errorMessage = `Lỗi: ${err.message}. Vui lòng thử lại.`;
       }
+      setToast({ message: errorMessage, type: 'error' });
+    } finally {
+      setShowConfirmationModal(false);
+      setPermissionToDeleteId(null);
     }
   };
   
   const handlePermissionUpdated = () => {
     fetchPermissions();
     setToast({ message: 'Cập nhật quyền thành công!', type: 'success' });
+    window.scrollTo(0, 0); // Scroll to top after update
   };
 
   if (loading) {
@@ -82,8 +111,8 @@ const PermissionManagement = () => {
                 <td>{permission.name}</td>
                 <td>{permission.description}</td>
                 <td>
-                  <button className="btn-action btn-edit" onClick={() => handleEdit(permission)}>Sửa</button>
-                  <button className="btn-action btn-delete" onClick={() => handleDelete(permission.id)}>Xóa</button>
+                  <button className="btn-action btn-edit" onClick={() => handleEdit(permission)}><FaEdit /></button>
+                  <button className="btn-action btn-delete" onClick={() => handleDelete(permission.name)}><FaTrash /></button>
                 </td>
               </tr>
             ))
@@ -99,6 +128,15 @@ const PermissionManagement = () => {
           permission={selectedPermission}
           onClose={() => setUpdateModalOpen(false)}
           onPermissionUpdated={handlePermissionUpdated}
+        />
+      )}
+      {showConfirmationModal && (
+        <ConfirmationModal
+          isOpen={showConfirmationModal}
+          onClose={() => setShowConfirmationModal(false)}
+          onConfirm={confirmDelete}
+          title="Xác nhận xóa quyền"
+          message={`Bạn có chắc chắn muốn xóa quyền "${permissionToDeleteId}" này không?`}
         />
       )}
     </div>

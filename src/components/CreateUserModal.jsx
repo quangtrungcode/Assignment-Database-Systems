@@ -53,47 +53,47 @@ const CreateUserModal = ({ onClose, onUserCreated, roles }) => {
         </div>
         <form onSubmit={handleSubmit}>
           {error && <p className="modal-error">{error}</p>}
-          
-          <div className="form-group">
-            <label>Họ Tên</label>
-            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
+          <div className="modal-body">
+            <div className="form-group">
+              <label>Họ Tên</label>
+              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label>Mật khẩu</label>
+              <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label>Số điện thoại</label>
+              <input type="tel" name="phone" value={formData.phone} onChange={handleChange} />
+            </div>
+            <div className="form-group">
+              <label>Ngày sinh</label>
+              <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label>Giới tính</label>
+              <select name="gender" value={formData.gender} onChange={handleChange}>
+                <option value="Male">Nam</option>
+                <option value="Female">Nữ</option>
+                <option value="Other">Khác</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Vai trò</label>
+              <select name="roleType" value={formData.roleType} onChange={handleChange} required>
+                {roles.length === 0 && <option value="">Đang tải vai trò...</option>}
+                {roles.map((role) => (
+                  <option key={role.name} value={role.name}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="form-group">
-            <label>Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Mật khẩu</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Số điện thoại</label>
-            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label>Ngày sinh</label>
-            <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Giới tính</label>
-            <select name="gender" value={formData.gender} onChange={handleChange}>
-              <option value="Male">Nam</option>
-              <option value="Female">Nữ</option>
-              <option value="Other">Khác</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Vai trò</label>
-            <select name="roleType" value={formData.roleType} onChange={handleChange} required>
-              {roles.length === 0 && <option value="">Đang tải vai trò...</option>}
-              {roles.map((role) => (
-                <option key={role.name} value={role.name}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div className="modal-footer">
             <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>
               Hủy
