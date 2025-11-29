@@ -204,11 +204,9 @@ const RoleManagementPage = () => {
         permissionAPI.getAll()
       ]);
 
-                        if (rolesRes.data?.code === 1000 && Array.isArray(rolesRes.data.result)) {
+                              if (rolesRes.data?.code === 1000 && Array.isArray(rolesRes.data.result)) {
 
-                          console.log('Fetched roles data:', rolesRes.data.result); // Add this log
-
-                          setRoles(rolesRes.data.result);
+                                setRoles(rolesRes.data.result);
 
                         } else {
 
@@ -245,7 +243,6 @@ const RoleManagementPage = () => {
 
   const handleRoleCreated = () => {
     setRoleModalOpen(false);
-    setToast({ message: 'Tạo vai trò thành công!', type: 'success' });
     fetchAllData();
   };
 
@@ -288,7 +285,7 @@ const RoleManagementPage = () => {
         setToast({ message: 'Xóa vai trò thành công!', type: 'success' });
         fetchAllData();
       } catch (err) {
-        setToast({ message: 'Lỗi khi xóa vai trò.', type: 'error' });
+        setToast({ message: err.response?.data?.message || 'Lỗi khi xóa vai trò.', type: 'error' });
       } finally {
         setConfirmModalOpen(false);
         setRoleToDelete(null);
@@ -334,7 +331,7 @@ const RoleManagementPage = () => {
                     <td>
                       <div className="action-buttons">
                         <FaPencilAlt className="btn-action btn-edit" onClick={() => handleEdit(role)} title="Sửa" />
-                        <FaTrashAlt className="btn-action btn-delete" onClick={() => handleDelete(role.id)} title="Xóa" />
+                        <FaTrashAlt className="btn-action btn-delete" onClick={() => handleDelete(role.name)} title="Xóa" />
                       </div>
                     </td>
                   </tr>
