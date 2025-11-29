@@ -85,24 +85,28 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated, loading
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Chọn các quyền</label>
-          <div className="permission-list" style={{ border: '1px solid #ddd', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+          <div className="permission-list" style={{ border: '1px solid #ddd', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto', overflowX: 'auto' }}>
             {processedPermissions.map((permission) => (
-              <div
-                key={permission.uniqueKey} // Use the guaranteed unique key
-                className="permission-item"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '8px 12px',
-                  borderBottom: '1px solid #eee',
-                  backgroundColor: selectedPermissionsSet.has(permission.uniqueKey) ? '#e6f7ff' : 'transparent',
-                }}
-              >
-                <Checkbox
+                              <div
+                                key={permission.uniqueKey} // Use the guaranteed unique key
+                                className="permission-item"
+                                style={{
+                                  padding: '8px 12px',
+                                  borderBottom: '1px solid #eee',
+                                  backgroundColor: selectedPermissionsSet.has(permission.uniqueKey) ? '#e6f7ff' : 'transparent',
+                                  width: '100%', // Ensure it takes full available width
+                                }}
+                              >                <Checkbox
                   checked={selectedPermissionsSet.has(permission.uniqueKey)}
                   onChange={() => handlePermissionChange(permission.uniqueKey)} // Pass the uniqueKey
                 >
-                  {permission.name}
+                  <span style={{
+                    display: 'block', 
+                    whiteSpace: 'normal', 
+                    wordBreak: 'break-word'
+                  }}>
+                    {permission.name}
+                  </span>
                 </Checkbox>
               </div>
             ))}
@@ -114,3 +118,4 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated, loading
 };
 
 export default UpdateRoleModal;
+

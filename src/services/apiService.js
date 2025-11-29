@@ -83,10 +83,31 @@ api.interceptors.request.use(
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('Authorization header set:', config.headers['Authorization']); // Added for debugging
+    } else {
+      console.log('No authToken found in localStorage.'); // Added for debugging
     }
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Thêm interceptor để log response hoặc lỗi
+api.interceptors.response.use(
+  (response) => {
+    console.log('API Response (Success):', response);
+    return response;
+  },
+  (error) => {
+    console.error('API Response (Error):', error.response || error);
+    // Có thể thêm logic xử lý lỗi global ở đây, ví dụ:
+    // if (error.response?.status === 401 && !error.config.url.includes('/auth/token')) {
+    //   // Xử lý token hết hạn, chuyển hướng về trang login
+    //   localStorage.removeItem('authToken');
+    //   window.location.href = '/login';
+    // }
     return Promise.reject(error);
   }
 );
