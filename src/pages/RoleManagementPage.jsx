@@ -62,19 +62,24 @@ const RoleManagementPage = () => {
     fetchAllData();
   };
 
-  const handleRoleUpdated = async (updatedData) => {
-    setUpdateModalOpen(false); // Đóng modal ngay lập tức để tránh re-render không mong muốn
+  const handleUpdateRoleSubmit = async (updatedData) => {
+    setLoading(true);
     try {
-      // Backend chỉ nhận tên vai trò và danh sách quyền
-      await roleAPI.update(updatedData.originalName, {
+      const payload = {
+        id: selectedRole.id, // Add the role ID
         name: updatedData.newName,
         permissions: updatedData.permissions,
-      });
-      fetchAllData(); // Tải lại danh sách vai trò sau khi cập nhật
+      };
+      await roleAPI.update(payload);
       setToast({ message: 'Cập nhật vai trò thành công!', type: 'success' });
+      setUpdateModalOpen(false);
+      setSelectedRole(null);
+      fetchAllData();
     } catch (error) {
       console.error("Failed to update role:", error);
       setToast({ message: 'Lỗi khi cập nhật vai trò.', type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -159,7 +164,7 @@ const RoleManagementPage = () => {
           role={selectedRole}
           allPermissions={allPermissions}
           onClose={() => setUpdateModalOpen(false)}
-          onRoleUpdated={handleRoleUpdated}
+          onRoleUpdated={handleUpdateRoleSubmit}
         />
       )}
       <ConfirmationModal isOpen={isConfirmModalOpen} onClose={() => setConfirmModalOpen(false)} onConfirm={confirmDelete} title="Xác nhận xóa" message="Bạn có chắc chắn muốn xóa vai trò này?" />

@@ -10,8 +10,9 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated, loading
     return allPermissions.map((permission, index) => ({
       ...permission,
       // Create a truly unique identifier for React's key and internal state
-      uniqueKey: `${permission.id}-${index}`, 
-      originalId: permission.id // Keep original ID for API submission
+      uniqueKey: `${permission.name}-${index}`, 
+      originalId: permission.id, // Keep original ID for API submission
+      originalName: permission.name // Add originalName for API submission
     }));
   }, [allPermissions]);
 
@@ -22,8 +23,8 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated, loading
       const initialPermissionUniqueKeys = role.permissions
         ? role.permissions.map(p => {
             // Find the corresponding uniqueKey from processedPermissions
-            const found = processedPermissions.find(pp => String(pp.originalId) === String(p.id)); // Ensure type consistency for comparison
-            return found ? found.uniqueKey : String(p.id); // Fallback to originalId string if not found (shouldn't happen)
+            const found = processedPermissions.find(pp => String(pp.originalName) === String(p.name)); // Ensure type consistency for comparison
+            return found ? found.uniqueKey : String(p.name); // Fallback to originalName string if not found (shouldn't happen)
           })
         : [];
       setSelectedPermissionsSet(new Set(initialPermissionUniqueKeys));
@@ -46,7 +47,7 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated, loading
     // Map uniqueKeys back to original permission IDs for API submission
     const permissionsToSubmit = Array.from(selectedPermissionsSet).map(uniqueKey => {
       const found = processedPermissions.find(p => p.uniqueKey === uniqueKey);
-      return found ? found.originalId : uniqueKey; // Fallback in case uniqueKey wasn't found (shouldn't happen)
+      return found ? found.originalName : uniqueKey; // Fallback in case uniqueKey wasn't found (shouldn't happen)
     });
 
     await onRoleUpdated({
