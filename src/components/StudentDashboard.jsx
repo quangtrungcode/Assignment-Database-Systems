@@ -1,35 +1,25 @@
-import '../styles/Dashboard.css'
+import React, { useState } from 'react';
+import '../styles/Dashboard.css';
+import StudentProfileModal from './StudentProfileModal'; 
+import Toast from './Toast';
 
-function StudentDashboard({ user, onLogout }) {
-  // The user object from backend now looks like this:
-  // user: {
-  //   userID: "USR0022",
-  //   email: "quangtrung13@gmail.com",
-  //   fullName: "Le Quang Trung 13",
-  //   gender: "MALE",
-  //   phone: "0987654321",
-  //   birthDate": "2025-11-28",
-  //   role: { name: "student", ... }
-  // }
+function StudentDashboard({ user, onLogout, onRefresh }) {
+  
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal sửa thông tin
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false); // 👇 Modal xác nhận đăng xuất
+  const [toast, setToast] = useState(null);
 
   const getRoleText = (roleName) => {
     if (!roleName) return 'Chưa có vai trò';
-    // Capitalize first letter for display
     return roleName.charAt(0).toUpperCase() + roleName.slice(1);
   }
 
   const getGenderText = (gender) => {
     if (!gender) return 'Chưa cập nhật';
     switch(gender.toLowerCase()) {
-      case 'male':
-      case 'nam':
-        return 'Nam'
-      case 'female':
-      case 'nữ':
-        return 'Nữ'
-      case 'other':
-      case 'khác':
-        return 'Khác'
+      case 'male': case 'nam': return 'Nam'
+      case 'female': case 'nữ': return 'Nữ'
+      case 'other': case 'khác': return 'Khác'
       default: return 'Chưa cập nhật'
     }
   }
@@ -39,16 +29,47 @@ function StudentDashboard({ user, onLogout }) {
     return new Date(dateString).toLocaleDateString('vi-VN')
   }
 
+  const handleUserUpdated = () => {
+    setIsModalOpen(false); 
+    setToast({ message: 'Cập nhật thông tin thành công!', type: 'success' });
+    setTimeout(() => setToast(null), 3000);
+
+    if (onRefresh) {
+        onRefresh(); 
+    } else {
+        window.location.reload(); 
+    }
+  };
+
+  // 👇 HÀM XỬ LÝ KHI BẤM NÚT ĐĂNG XUẤT
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true); // Mở hộp thoại xác nhận thay vì thoát luôn
+  };
+
+  // 👇 HÀM XÁC NHẬN ĐĂNG XUẤT THẬT
+  const confirmLogout = () => {
+    setIsLogoutModalOpen(false);
+    onLogout(); // Gọi hàm đăng xuất từ cha
+  };
+
   return (
     <div className="dashboard-container">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
       <div className="dashboard-header">
         <h1>Chào mừng, {user.fullName}!</h1>
-        <button onClick={onLogout} className="btn-logout">Đăng Xuất</button>
+        {/* 👇 Sửa onClick ở đây */}
+        <button onClick={handleLogoutClick} className="btn-logout">Đăng Xuất</button>
       </div>
 
       <div className="dashboard-content">
-        <div className="dashboard-card">
-          <h2>Thông Tin Tài Khoản</h2>
+        
+        {/* --- CỘT 1: THÔNG TIN --- */}
+        <div className="dashboard-card col-info">
+          <div style={{borderBottom: '2px solid #667eea', marginBottom: '20px', paddingBottom: '10px'}}>
+            <h2 style={{margin: 0, padding: 0, border: 'none'}}>Thông Tin Tài Khoản</h2>
+          </div>
+          
           <div className="user-info">
             <div className="info-row">
               <span className="info-label">User ID:</span>
@@ -66,6 +87,21 @@ function StudentDashboard({ user, onLogout }) {
               <span className="info-label">Vai trò:</span>
               <span className="info-value role-badge">{getRoleText(user.role?.name)}</span>
             </div>
+
+            {user.career && (
+              <div className="info-row">
+                <span className="info-label">Chuyên ngành:</span>
+                <span className="info-value" style={{fontWeight: 'bold', color: '#0369a1'}}>{user.career}</span>
+              </div>
+            )}
+
+            {user.profession && (
+              <div className="info-row">
+                <span className="info-label">Chuyên môn:</span>
+                <span className="info-value" style={{fontWeight: 'bold', color: '#a21caf'}}>{user.profession}</span>
+              </div>
+            )}
+
             <div className="info-row info-row-permissions">
               <span className="info-label">Quyền hạn:</span>
               <div className="info-value">
@@ -100,29 +136,89 @@ function StudentDashboard({ user, onLogout }) {
           <p className="success-message">✓ Bạn đã đăng nhập thành công!</p>
         </div>
 
-        <div className="dashboard-card">
+        {/* --- CỘT 2: CHỨC NĂNG --- */}
+        <div className="dashboard-card col-actions">
           <h2>Chức Năng</h2>
-          <ul>
-            <li>Quản lý hồ sơ cá nhân</li>
-            <li>Xem lịch sử hoạt động</li>
-            <li>Cài đặt bảo mật</li>
+          <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+            <li 
+                onClick={() => setIsModalOpen(true)} 
+                style={{
+                    cursor: 'pointer', 
+                    color: '#667eea', 
+                    fontWeight: 'bold', 
+                    marginBottom: '10px', 
+                    padding: '12px', 
+                    backgroundColor: '#f4f6f8', 
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    transition: '0.2s'
+                }}
+                className="menu-item-hover"
+            >
+                ✏️ Cập nhật thông tin cá nhân
+            </li>
+
+            <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>📅 Xem lịch sử hoạt động</li>
+            <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>🔒 Cài đặt bảo mật</li>
+            
             {user.role?.name === 'student' && (
               <>
-                <li>Xem danh sách môn học</li>
-                <li>Nộp bài tập</li>
+                <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>📚 Xem danh sách môn học</li>
+                <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>📝 Nộp bài tập</li>
               </>
             )}
             {user.role?.name === 'lecturer' && (
               <>
-                <li>Quản lý lớp học</li>
-                <li>Chấm điểm bài tập</li>
+                <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>🎓 Quản lý lớp học</li>
+                <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>✍️ Chấm điểm bài tập</li>
               </>
             )}
           </ul>
         </div>
       </div>
+
+      {/* MODAL SỬA THÔNG TIN */}
+      {isModalOpen && (
+        <StudentProfileModal 
+            user={user} 
+            onClose={() => setIsModalOpen(false)} 
+            onUserUpdated={handleUserUpdated}
+        />
+      )}
+
+      {/* 👇👇👇 MODAL XÁC NHẬN ĐĂNG XUẤT 👇👇👇 */}
+      {isLogoutModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center', padding: '30px' }}>
+            <h2 style={{color: '#e74c3c', marginTop: 0}}>Đăng Xuất</h2>
+            <p style={{fontSize: '16px', color: '#555', margin: '20px 0'}}>
+                Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+                <button 
+                    onClick={() => setIsLogoutModalOpen(false)} 
+                    className="btn-cancel"
+                    style={{padding: '10px 25px'}}
+                >
+                    Hủy
+                </button>
+                <button 
+                    onClick={confirmLogout} 
+                    className="btn-logout"
+                    style={{padding: '10px 25px', width: 'auto'}} // Ghi đè width 100% của responsive cũ
+                >
+                    Đồng ý
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 👆👆👆 KẾT THÚC MODAL ĐĂNG XUẤT 👆👆👆 */}
+
     </div>
   )
 }
 
-export default StudentDashboard
+export default StudentDashboard;

@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import '../styles/AdminLayout.css'; // Sẽ tạo file này ở bước tiếp theo
+import '../styles/AdminLayout.css';
+import ConfirmationModal from './ConfirmationModal'; // Import the ConfirmationModal
 
 const AdminLayout = ({ user, onLogout }) => {
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const handleLogoutConfirm = () => {
+    setIsLogoutModalOpen(false); // Close the modal
+    onLogout(); // Proceed with logout
+  };
+
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
@@ -10,7 +18,12 @@ const AdminLayout = ({ user, onLogout }) => {
           <h3>Admin Panel</h3>
           <div className="sidebar-user-info">
             <span>Chào, <strong>{user?.fullName || 'Admin'}</strong></span>
-            <button onClick={onLogout} className="btn-logout-sidebar">Đăng Xuất</button>
+            <button
+              onClick={() => setIsLogoutModalOpen(true)} // Open modal on click
+              className="btn-logout-sidebar"
+            >
+              Đăng Xuất
+            </button>
           </div>
         </div>
         <nav className="sidebar-nav">
@@ -23,6 +36,15 @@ const AdminLayout = ({ user, onLogout }) => {
       <main className="admin-content">
         <Outlet />
       </main>
+
+      {/* Confirmation Modal for Logout */}
+      <ConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
+        title="Xác nhận Đăng xuất"
+        message="Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?"
+      />
     </div>
   );
 };

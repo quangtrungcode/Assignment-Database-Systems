@@ -33,6 +33,8 @@ function Register() {
     phone: '',
     birthDate: '',
     roleType: 'student',
+    major: '', // New field for student
+    specialization: '', // New field for lecturer
   });
 
   const [errors, setErrors] = useState({});
@@ -50,6 +52,16 @@ function Register() {
     // As user types, clear any existing error for that field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
+    }
+    
+    // Clear major/specialization if roleType changes
+    if (name === 'roleType') {
+      setFormData(prev => ({
+        ...prev,
+        roleType: value,
+        major: value === 'student' ? prev.major : '',
+        specialization: value === 'lecturers' ? prev.specialization : '',
+      }));
     }
   };
 
@@ -74,6 +86,12 @@ function Register() {
       case 'confirmPassword':
         if (formData.passwordHash !== value) error = "Mật khẩu xác nhận không khớp";
         break;
+      case 'major':
+        if (formData.roleType === 'student' && !value.trim()) error = "Ngành học không được để trống";
+        break;
+      case 'specialization':
+        if (formData.roleType === 'lecturers' && !value.trim()) error = "Chuyên môn không được để trống";
+        break;
       default:
         break;
     }
@@ -96,9 +114,24 @@ function Register() {
     if (!formData.passwordHash) finalErrors.passwordHash = ERROR_MESSAGES[1009];
     else if (formData.passwordHash.length < 8) finalErrors.passwordHash = ERROR_MESSAGES[1005];
     if (formData.passwordHash !== formData.confirmPassword) finalErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+    
+    // Add validation for new fields
+    if (formData.roleType === 'student' && !formData.major.trim()) {
+      finalErrors.major = "Ngành học không được để trống";
+    }
+    if (formData.roleType === 'lecturers' && !formData.specialization.trim()) {
+      finalErrors.specialization = "Chuyên môn không được để trống";
+    }
 
     setErrors(finalErrors);
-    setTouched({ fullName: true, email: true, passwordHash: true, confirmPassword: true });
+    setTouched({ 
+      fullName: true, 
+      email: true, 
+      passwordHash: true, 
+      confirmPassword: true,
+      major: true,
+      specialization: true,
+    });
 
     if (Object.keys(finalErrors).length > 0) {
       setToast({ message: "Vui lòng kiểm tra lại các lỗi trong form.", type: 'error' });
@@ -110,7 +143,7 @@ function Register() {
     setToast(null);
 
     try {
-      await authAPI.register({
+      const payload = {
         email: formData.email,
         passwordHash: formData.passwordHash,
         fullName: formData.fullName,
@@ -118,7 +151,15 @@ function Register() {
         phone: formData.phone || null,
         birthDate: formData.birthDate || null,
         roleType: formData.roleType,
-      });
+      };
+
+      if (formData.roleType === 'student') {
+        payload.major = formData.major;
+      } else if (formData.roleType === 'lecturers') {
+        payload.specialization = formData.specialization;
+      }
+
+      await authAPI.register(payload);
 
       setToast({
         message: 'Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập.',
@@ -238,6 +279,22 @@ function Register() {
               <option value="lecturers">Giảng viên</option>
             </select>
           </div>
+
+          {formData.roleType === 'student' && (
+            <div className="form-group">
+              <label htmlFor="major">Ngành Học</label>
+              <input type="text" id="major" name="major" value={formData.major} onChange={handleChange} onBlur={handleBlur} disabled={loading} required placeholder="Ví dụ: Công nghệ thông tin" />
+              {errors.major && <span className="error-message">{errors.major}</span>}
+            </div>
+          )}
+
+          {formData.roleType === 'lecturers' && (
+            <div className="form-group">
+              <label htmlFor="specialization">Chuyên Môn</label>
+              <input type="text" id="specialization" name="specialization" value={formData.specialization} onChange={handleChange} onBlur={handleBlur} disabled={loading} required placeholder="Ví dụ: Lập trình Web, Trí tuệ nhân tạo" />
+              {errors.specialization && <span className="error-message">{errors.specialization}</span>}
+            </div>
+          )}
 
           <button type="submit" className="btn-submit" disabled={loading}>
             {loading ? 'Đang xử lý...' : 'Đăng Ký'}

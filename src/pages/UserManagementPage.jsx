@@ -172,6 +172,7 @@ const UserManagementPage = () => {
               <input type="text" name="fullName" placeholder="Họ Tên" value={filters.fullName} onChange={handleFilterChange} className="filter-input" />
               <input type="email" name="email" placeholder="Email" value={filters.email} onChange={handleFilterChange} className="filter-input" />
               <input type="text" name="phone" placeholder="Số điện thoại" value={filters.phone} onChange={handleFilterChange} className="filter-input" />
+
               <select name="gender" value={filters.gender} onChange={handleFilterChange} className="filter-input">
                 <option value="">Chọn giới tính</option>
                 <option value="Nam">Nam</option>
@@ -229,7 +230,8 @@ const UserManagementPage = () => {
                   <th>Họ Tên</th>
                   <th>Email</th>
                   <th>Vai Trò</th>
-                  <th>Số điện thoại</th>
+                  <th className="col-phone">Số điện thoại</th>
+
                   <th>Giới tính</th>
                   <th>Ngày sinh</th>
                   <th>Ngày tạo</th>
@@ -243,7 +245,10 @@ const UserManagementPage = () => {
                     <td>{u.fullName}</td>
                     <td>{u.email}</td>
                     <td><span className="role-badge">{getRoleName(u)}</span></td>
-                    <td>{u.phone || 'N/A'}</td>
+                    <td className="col-phone">
+                      {u.phone || 'N/A'}
+                    </td>
+
                     <td>{u.gender || 'N/A'}</td>
                     <td>{formatDate(u.birthDate)}</td>
                     <td>{formatDate(u.createdAt)}</td>

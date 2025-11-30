@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../styles/Dashboard.css';
+import LecturerProfileModal from './LecturerProfileModal';
+import Toast from './Toast'; // Import Toast
 
-const LecturerDashboard = ({ user, onLogout }) => {
+function LecturerDashboard({ user, onLogout, onRefresh }) {
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [toast, setToast] = useState(null); // State Toast ở Dashboard
+
   const getRoleText = (roleName) => {
     if (!roleName) return 'Chưa có vai trò';
     let roleNameToRender = roleName;
@@ -12,9 +19,9 @@ const LecturerDashboard = ({ user, onLogout }) => {
   const getGenderText = (gender) => {
     if (!gender) return 'Chưa cập nhật';
     switch(gender.toLowerCase()) {
-      case 'male': return 'Nam';
-      case 'female': return 'Nữ';
-      case 'other': return 'Khác';
+      case 'male': case 'nam': return 'Nam';
+      case 'female': case 'nữ': return 'Nữ';
+      case 'other': case 'khác': return 'Khác';
       default: return 'Chưa cập nhật';
     }
   }
@@ -24,16 +31,49 @@ const LecturerDashboard = ({ user, onLogout }) => {
     return new Date(dateString).toLocaleDateString('vi-VN');
   }
 
+  // 👇 HÀM XỬ LÝ MỚI: MƯỢT HƠN
+  const handleUserUpdated = () => {
+    setIsModalOpen(false); 
+    
+    // Hiện thông báo thành công ở đây
+    setToast({ message: 'Cập nhật thông tin thành công!', type: 'success' });
+    setTimeout(() => setToast(null), 3000);
+
+    // Refresh dữ liệu
+    if (onRefresh) {
+        onRefresh(); 
+    } else {
+        window.location.reload(); 
+    }
+  };
+
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const confirmLogout = () => {
+    setIsLogoutModalOpen(false);
+    onLogout();
+  };
+
   return (
     <div className="dashboard-container">
+      {/* Toast hiển thị đè lên trên cùng */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
       <div className="dashboard-header">
         <h1>Bảng điều khiển Giảng viên</h1>
-        <button onClick={onLogout} className="btn-logout">Đăng Xuất</button>
+        <button onClick={handleLogoutClick} className="btn-logout">Đăng Xuất</button>
       </div>
 
       <div className="dashboard-content">
-        <div className="dashboard-card">
-          <h2>Thông Tin Tài Khoản</h2>
+        
+        {/* --- CỘT 1: THÔNG TIN --- */}
+        <div className="dashboard-card col-info">
+          <div style={{borderBottom: '2px solid #667eea', marginBottom: '20px', paddingBottom: '10px'}}>
+            <h2 style={{margin: 0, padding: 0, border: 'none'}}>Thông Tin Tài Khoản</h2>
+          </div>
+          
           <div className="user-info">
             <div className="info-row">
               <span className="info-label">User ID:</span>
@@ -51,6 +91,14 @@ const LecturerDashboard = ({ user, onLogout }) => {
               <span className="info-label">Vai trò:</span>
               <span className="info-value role-badge">{getRoleText(user.role?.name)}</span>
             </div>
+
+            {user.profession && (
+              <div className="info-row">
+                <span className="info-label">Chuyên môn:</span>
+                <span className="info-value" style={{fontWeight: 'bold', color: '#a21caf'}}>{user.profession}</span>
+              </div>
+            )}
+
             <div className="info-row info-row-permissions">
               <span className="info-label">Quyền hạn:</span>
               <div className="info-value">
@@ -82,34 +130,81 @@ const LecturerDashboard = ({ user, onLogout }) => {
               <span className="info-value">{formatDate(user.createdAt)}</span>
             </div>
           </div>
-          <p className="success-message">✓ Chào mừng, {user.fullName}!</p>
+          <p className="success-message">✓ Chào mừng thầy/cô, {user.fullName}!</p>
         </div>
 
-        <div className="dashboard-card">
+        {/* --- CỘT 2: CHỨC NĂNG --- */}
+        <div className="dashboard-card col-actions">
           <h2>Chức Năng</h2>
-          <ul>
-            <li>Quản lý hồ sơ cá nhân</li>
-            <li>Xem lịch sử hoạt động</li>
-            <li>Cài đặt bảo mật</li>
-            {user.role?.name === 'student' && (
-              <>
-                <li>Xem danh sách môn học</li>
-                <li>Nộp bài tập</li>
-              </>
-            )}
-            {user.role?.name === 'lecturers' && (
-              <>
-                <li>Quản lý lớp học</li>
-                <li>Chấm điểm bài tập</li>
-              </>
-            )}
+          <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+            <li 
+                onClick={() => setIsModalOpen(true)} 
+                style={{
+                    cursor: 'pointer', 
+                    color: '#667eea', 
+                    fontWeight: 'bold', 
+                    marginBottom: '10px', 
+                    padding: '12px', 
+                    backgroundColor: '#f4f6f8', 
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    transition: '0.2s'
+                }}
+                className="menu-item-hover"
+            >
+                ✏️ Cập nhật thông tin cá nhân
+            </li>
+
+            <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>📅 Xem lịch giảng dạy</li>
+            <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>🔒 Cài đặt bảo mật</li>
+            
+            <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>🎓 Quản lý lớp học</li>
+            <li style={{marginBottom: '10px', padding: '10px', borderBottom: '1px solid #eee'}}>✍️ Chấm điểm bài tập</li>
           </ul>
         </div>
       </div>
+
+      {/* MODAL SỬA THÔNG TIN */}
+      {isModalOpen && (
+        <LecturerProfileModal 
+            user={user} 
+            onClose={() => setIsModalOpen(false)} 
+            onUserUpdated={handleUserUpdated}
+        />
+      )}
+
+      {/* MODAL XÁC NHẬN ĐĂNG XUẤT */}
+      {isLogoutModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '400px', textAlign: 'center', padding: '30px' }}>
+            <h2 style={{color: '#e74c3c', marginTop: 0}}>Đăng Xuất</h2>
+            <p style={{fontSize: '16px', color: '#555', margin: '20px 0'}}>
+                Thầy/Cô có chắc chắn muốn đăng xuất khỏi hệ thống không?
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+                <button 
+                    onClick={() => setIsLogoutModalOpen(false)} 
+                    className="btn-cancel"
+                    style={{padding: '10px 25px'}}
+                >
+                    Hủy
+                </button>
+                <button 
+                    onClick={confirmLogout} 
+                    className="btn-logout"
+                    style={{padding: '10px 25px', width: 'auto'}}
+                >
+                    Đồng ý
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
 
 export default LecturerDashboard;
-
-

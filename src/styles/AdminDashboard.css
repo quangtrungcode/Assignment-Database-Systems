@@ -1,120 +1,131 @@
+/* AdminDashboard.css */
 
-/* AdminDashboard.css - Specific styling for AdminDashboard component */
-
+/* Container chính của lưới thẻ */
 .dashboard-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
-  gap: 25px;
+  grid-template-columns: repeat(3, 1fr); /* Chia 3 cột đều nhau */
+  gap: 30px; /* Khoảng cách giữa các thẻ rộng hơn chút cho thoáng */
   margin-bottom: 30px;
 }
 
-.dashboard-card.stat-card {
+/* --- STYLE CHO TỪNG CARD --- */
+.stat-card {
+  background-color: #ffffff !important; /* 👈 QUAN TRỌNG: Nền trắng tuyệt đối */
+  border-radius: 15px; /* Bo góc tròn trịa hiện đại */
+  padding: 25px;
   display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 25px 30px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  text-decoration: none; /* Remove underline from Link */
-  color: inherit; /* Inherit color to not be blue */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  text-decoration: none; /* Bỏ gạch chân */
+  color: inherit;
+  
+  /* Hiệu ứng nổi khối */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0,0,0,0.05);
+  
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
-.dashboard-card.stat-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+/* Hiệu ứng khi di chuột: Nổi lên và sáng hơn */
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
+/* --- PHẦN ICON --- */
 .card-icon {
-  font-size: 40px;
-  color: #667eea; /* Default icon color */
-  opacity: 0.7;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin-right: 20px;
+  flex-shrink: 0;
 }
 
-/* Specific card colors for icons and backgrounds */
-.user-card .card-icon { color: #4CAF50; } /* Green for users */
-.role-card .card-icon { color: #FF9800; } /* Orange for roles */
-.permission-card .card-icon { color: #2196F3; } /* Blue for permissions */
-
+/* --- PHẦN CHỮ --- */
+.card-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 .card-info h3 {
   margin: 0 0 5px 0;
-  color: #555;
-  font-size: 16px;
-  font-weight: 600;
+  color: #8898aa; /* Màu xám nhạt sang trọng cho tiêu đề */
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .card-info .stat-number {
-  font-size: 32px;
-  font-weight: bold;
-  color: #333;
+  margin: 0;
+  font-size: 36px; /* Số to rõ ràng */
+  font-weight: 800;
+  color: #32325d; /* Màu chữ đậm dễ đọc */
+  line-height: 1.2;
 }
 
-.dashboard-card.welcome-card {
-  background: linear-gradient(45deg, #e0f2f7 0%, #bbdefb 100%);
-  border: 1px solid #90caf9;
-  padding: 30px;
-  text-align: center;
-  color: #333;
-}
+/* --- MÀU SẮC THEME RIÊNG --- */
 
-.dashboard-card.welcome-card h2 {
+/* 1. Users (Xanh dương) */
+.user-card .card-icon {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
   color: #1976d2;
-  border-bottom: none;
-  font-size: 24px;
-  margin-bottom: 15px;
+}
+.user-card:hover { border-bottom: 4px solid #1976d2; }
+
+/* 2. Roles (Xanh lá) */
+.role-card .card-icon {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  color: #388e3c;
+}
+.role-card:hover { border-bottom: 4px solid #388e3c; }
+
+/* 3. Permissions (Vàng cam) */
+.permission-card .card-icon {
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+  color: #ffa000;
+}
+.permission-card:hover { border-bottom: 4px solid #ffa000; }
+
+
+/* --- WELCOME CARD (Thẻ chào mừng ở dưới) --- */
+.welcome-card {
+  background-color: #ffffff !important;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border-left: 6px solid #667eea; /* Viền trái màu tím chủ đạo */
 }
 
-.dashboard-card.welcome-card p {
+.welcome-card h2 {
+  color: #5e72e4;
+  margin-top: 0;
+}
+
+.welcome-card p {
+  color: #525f7f;
   font-size: 16px;
   line-height: 1.6;
-  margin-bottom: 10px;
 }
 
-/* Responsive adjustments */
+/* --- RESPONSIVE --- */
 @media (max-width: 992px) {
   .dashboard-cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-  }
-  .dashboard-card.stat-card {
-    padding: 20px 25px;
-  }
-  .card-icon {
-    font-size: 35px;
-  }
-  .card-info .stat-number {
-    font-size: 28px;
+    grid-template-columns: repeat(2, 1fr); /* Tablet: 2 cột */
   }
 }
 
 @media (max-width: 600px) {
   .dashboard-cards-grid {
-    grid-template-columns: 1fr; /* Stack cards vertically on small screens */
-    gap: 15px;
+    grid-template-columns: 1fr; /* Mobile: 1 cột */
   }
-  .dashboard-card.stat-card {
-    flex-direction: column;
-    text-align: center;
-    gap: 10px;
-    padding: 15px 20px;
-  }
-  .card-info h3 {
-    font-size: 14px;
-  }
-  .card-info .stat-number {
-    font-size: 24px;
-  }
-
-  .dashboard-card.welcome-card h2 {
-    font-size: 20px;
-  }
-  .dashboard-card.welcome-card p {
-    font-size: 14px;
-  }
-
-  .dashboard-content {
-    width: 100%;
-    padding: 0 10px;
+  .stat-card {
+    padding: 20px;
   }
 }

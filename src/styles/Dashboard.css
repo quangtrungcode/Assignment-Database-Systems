@@ -1,7 +1,5 @@
 /* Dashboard.css - Styling cho Dashboard */
 
-/* Dashboard.css - Styling cho Dashboard */
-
 .dashboard-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -43,10 +41,31 @@
   box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
 }
 
+/* --- CẬP NHẬT BỐ CỤC CHÍNH (FLEXBOX) --- */
 .dashboard-content {
-  width: 95%; /* Tăng độ rộng để chứa được nhiều cột hơn */
-  margin: 0 auto; /* Giữ cho nội dung luôn ở giữa */
+  width: 95%;
+  margin: 0 auto;
+  /* Sử dụng Flexbox để chia cột */
+  display: flex;
+  gap: 20px; /* Khoảng cách giữa 2 cột */
+  align-items: flex-start; /* Căn hàng đầu bằng nhau */
+  flex-wrap: wrap; /* Tự động xuống dòng nếu màn hình nhỏ */
 }
+
+/* Cột Thông tin (Bên trái) */
+.col-info {
+  flex: 2; /* Chiếm 2 phần không gian */
+  min-width: 300px; /* Đảm bảo không bị co quá nhỏ */
+}
+
+/* Cột Chức năng (Bên phải) */
+.col-actions {
+  flex: 1; /* Chiếm 1 phần không gian */
+  min-width: 250px;
+  position: sticky; /* Giữ menu đứng yên khi cuộn trang */
+  top: 20px; 
+}
+/* ----------------------------------------- */
 
 .dashboard-card {
   background: white;
@@ -54,6 +73,7 @@
   padding: 25px;
   margin-bottom: 20px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  height: 100%; /* Để các thẻ con fill chiều cao nếu cần */
 }
 
 .dashboard-card h2 {
@@ -108,6 +128,7 @@
   margin-top: 15px;
 }
 
+/* List Style trong Dashboard Card */
 .dashboard-card ul {
   list-style: none;
   padding: 0;
@@ -122,6 +143,7 @@
   line-height: 1.6;
 }
 
+/* Dấu tích xanh mặc định cho li */
 .dashboard-card li:before {
   content: '✓';
   position: absolute;
@@ -130,9 +152,9 @@
   font-weight: bold;
 }
 
-/* Styling for permissions list */
+/* Styling for permissions list (Quyền hạn) */
 .info-row-permissions {
-  align-items: flex-start; /* Align label to the top */
+  align-items: flex-start;
 }
 
 .permissions-list {
@@ -152,23 +174,22 @@
   border-radius: 15px;
   font-size: 12px;
   font-weight: 500;
-  cursor: help; /* Show help cursor on hover since there is a title */
+  cursor: help;
   transition: background-color 0.2s;
-  /* Resetting properties from the other li style */
   line-height: 1.5; 
   position: static;
 }
 
 .permissions-list li:before {
-  content: none; /* Remove the checkmark */
+  content: none; /* Bỏ dấu tích cho list quyền hạn */
 }
 
 .permissions-list li:hover {
   background-color: #e0e0e0;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* --- RESPONSIVE (Điện thoại & Tablet nhỏ) --- */
+@media (max-width: 800px) { /* Tăng breakpoint lên 800px để chuyển sang dọc sớm hơn */
   .dashboard-header {
     flex-direction: column;
     gap: 15px;
@@ -180,6 +201,16 @@
 
   .btn-logout {
     width: 100%;
+  }
+
+  /* Chuyển bố cục ngang thành dọc trên mobile */
+  .dashboard-content {
+    flex-direction: column;
+  }
+
+  .col-info, .col-actions {
+    width: 100%; /* Chiếm hết chiều ngang */
+    flex: none;  /* Bỏ chia tỷ lệ */
   }
 
   .info-row {
@@ -200,6 +231,7 @@
   }
 }
 
+/* Table Styles (Giữ nguyên từ code cũ của bạn) */
 .header-user-info {
   display: flex;
   align-items: center;
@@ -209,19 +241,18 @@
 .table-container {
   overflow-x: auto;
   margin-top: 20px;
-  max-height: 500px; /* Giới hạn chiều cao tối đa bằng 500px */
-  overflow-y: auto; /* Tự động thêm thanh cuộn dọc khi nội dung vượt quá */
+  max-height: 500px;
+  overflow-y: auto;
 }
 
 table {
   width: 100%;
-  min-width: 900px;
+  min-width: 1000px;
   border-collapse: collapse;
   table-layout: fixed;
 }
 
-th,
-td {
+th, td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
@@ -242,30 +273,30 @@ tr:hover {
   background-color: #f1f1f1;
 }
 
+/* Button Actions */
 .btn-action {
-  /* padding: 6px 12px; */ /* No longer need padding */
   border: none;
-  background-color: transparent; /* Remove background */
+  background-color: transparent;
   cursor: pointer;
-  font-size: 16px; /* Increase icon size slightly */
+  font-size: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out; /* Smooth transition for transform and color */
+  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-.btn-edit { color: #f39c12; } /* Orange icon color */
-.btn-delete { color: #e74c3c; } /* Red icon color */
+.btn-edit { color: #f39c12; }
+.btn-delete { color: #e74c3c; }
 
 .action-buttons {
   display: flex;
-  gap: 8px; /* Space between buttons */
-  justify-content: center; /* Center buttons within the cell */
+  gap: 8px;
+  justify-content: center;
   align-items: center;
 }
 
 .btn-action:hover {
-  transform: scale(1.2); /* Enlarge icon on hover */
+  transform: scale(1.2);
 }
 
 /* Filter Styles */
@@ -316,7 +347,7 @@ tr:hover {
   margin-top: 10px;
 }
 
-/* Styles for permissions cell in table */
+/* Permissions Tooltip */
 .permissions-cell {
   position: relative;
   cursor: help;
@@ -324,8 +355,8 @@ tr:hover {
 }
 
 .permission-count {
-  background-color: #eef2ff; /* Màu nền nhẹ nhàng */
-  color: #4f46e5; /* Màu chữ đậm */
+  background-color: #eef2ff;
+  color: #4f46e5;
   padding: 4px 12px;
   border-radius: 15px;
   font-size: 13px;
@@ -334,9 +365,9 @@ tr:hover {
 }
 
 .permissions-cell:hover::after {
-  content: attr(title); /* Lấy nội dung từ thuộc tính title */
+  content: attr(title);
   position: absolute;
-  bottom: 125%; /* Hiển thị tooltip phía trên */
+  bottom: 125%;
   left: 50%;
   transform: translateX(-50%);
   background-color: #333;
@@ -344,9 +375,13 @@ tr:hover {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 12px;
-  white-space: pre-wrap; /* Cho phép xuống dòng nếu danh sách quá dài */
+  white-space: pre-wrap;
   z-index: 10;
-  width: max-content; /* Độ rộng vừa với nội dung */
-  max-width: 300px; /* Giới hạn độ rộng tối đa */
+  width: max-content;
+  max-width: 300px;
   text-align: left;
+}
+
+.col-career {
+  width: 200px;
 }

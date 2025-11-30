@@ -119,7 +119,7 @@ const UserManagementPage = () => {
                   <th>Họ Tên</th>
                   <th>Email</th>
                   <th>Vai Trò</th>
-                  <th>Số điện thoại</th>
+
                   <th>Giới tính</th>
                   <th>Ngày sinh</th>
                   <th>Ngày tạo</th>
@@ -133,7 +133,7 @@ const UserManagementPage = () => {
                     <td>{u.fullName}</td>
                     <td>{u.email}</td>
                     <td><span className="role-badge">{u.role?.name || 'N/A'}</span></td>
-                    <td>{u.phone || 'N/A'}</td>
+
                     <td>{u.gender || 'N/A'}</td>
                     <td>{formatDate(u.birthDate)}</td>
                     <td>{formatDate(u.createdAt)}</td>
