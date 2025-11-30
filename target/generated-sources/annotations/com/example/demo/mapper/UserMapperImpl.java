@@ -4,7 +4,9 @@ import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdateRequest;
 import com.example.demo.dto.response.PermissionResponse;
 import com.example.demo.dto.response.RoleResponse;
+import com.example.demo.dto.response.StudentCourseResponse;
 import com.example.demo.dto.response.UserResponse;
+import com.example.demo.entity.Course;
 import com.example.demo.entity.Permission;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
@@ -15,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-27T21:53:07+0700",
+    date = "2025-11-30T20:49:56+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.9 (Oracle Corporation)"
 )
 @Component
@@ -27,7 +29,7 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        User.UserBuilder user = User.builder();
+        User.UserBuilder<?, ?> user = User.builder();
 
         user.email( userCreationRequest.getEmail() );
         user.fullName( userCreationRequest.getFullName() );
@@ -57,6 +59,8 @@ public class UserMapperImpl implements UserMapper {
         userResponse.role( roleToRoleResponse( user.getRole() ) );
         userResponse.createdAt( user.getCreatedAt() );
 
+        mapSpecificFields( userResponse, user );
+
         return userResponse.build();
     }
 
@@ -71,6 +75,21 @@ public class UserMapperImpl implements UserMapper {
         user.setGender( request.getGender() );
         user.setPhone( request.getPhone() );
         user.setBirthDate( request.getBirthDate() );
+    }
+
+    @Override
+    public StudentCourseResponse toStudentCourseResponse(Course course) {
+        if ( course == null ) {
+            return null;
+        }
+
+        StudentCourseResponse.StudentCourseResponseBuilder studentCourseResponse = StudentCourseResponse.builder();
+
+        studentCourseResponse.courseID( course.getCourseID() );
+        studentCourseResponse.courseName( course.getCourseName() );
+        studentCourseResponse.credits( course.getCredits() );
+
+        return studentCourseResponse.build();
     }
 
     protected PermissionResponse permissionToPermissionResponse(Permission permission) {

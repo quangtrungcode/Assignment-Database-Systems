@@ -14,6 +14,7 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     // Phương thức để lấy giá trị tiếp theo từ Sequence của SQL Server
 
     Optional<User> findByFullName(String fullName);
+    Optional<User> findByUserID(String userID);
     boolean existsByEmail(String email);
     boolean existsByFullName(String fullName);
     @Query(value = "SELECT NEXT VALUE FOR Seq_User", nativeQuery = true)

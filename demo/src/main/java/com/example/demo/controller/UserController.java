@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.ProfileUpdateRequest;
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserSearchRequest;
 import com.example.demo.dto.request.UserUpdateRequest;
@@ -59,7 +60,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ApiResponse<UserResponse> updateUser(@PathVariable("userId") String userId, @RequestBody UserUpdateRequest userUpdateRequest) {
+    public ApiResponse<UserResponse> updateUser(@PathVariable("userId") String userId, @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
         ApiResponse<UserResponse>apiResponse=new ApiResponse<>();
         apiResponse.setResult(userService.updateUser(userId,userUpdateRequest));
         return apiResponse;
@@ -69,5 +70,13 @@ public class UserController {
     public String deleteUser(@PathVariable("userId") String userId) {
         userService.deleteUser(userId);
         return "User has been deleted";
+    }
+
+    @PutMapping("/{userId}/profile") // Đường dẫn sẽ là: PUT /users/USR001/profile
+// @PreAuthorize("hasRole('student')") // Nếu muốn chặn chỉ cho student
+    public ApiResponse<UserResponse> updateProfile(@PathVariable String userId, @RequestBody ProfileUpdateRequest request) {
+        ApiResponse<UserResponse>apiResponse=new ApiResponse<>();
+        apiResponse.setResult(userService.updateProfile(userId,request));
+        return apiResponse;
     }
 }

@@ -44,7 +44,7 @@ public class ApplicationInitConfig {
               var  permission1 =permissionRepository.findById(permission.getName()).orElseThrow();
                 Role role=Role.builder()
                         .name("admin")
-                        .description("admin role")
+                        .description("Quản trị viên hệ thống")
                         .permissions(Set.of(permission1))
                         .build();
 
@@ -60,7 +60,7 @@ public class ApplicationInitConfig {
                         .phone("0123456789")
                         .createdAt(new Date())
                         .birthDate(new Date())
-                        .gender("Male")
+                        .gender("Nam")
 //                       .roles(roles)
 //                        .roles(Role.admin.name())
                         .role(role)

@@ -1,6 +1,7 @@
 package com.example.demo.dto.response;
 
 import com.example.demo.entity.Role;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,6 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
     String userID;
     String email;
@@ -27,4 +29,7 @@ public class UserResponse {
     //String roleName;
    // String roleType;
     Date createdAt;
+
+    String career;
+    String profession;
 }

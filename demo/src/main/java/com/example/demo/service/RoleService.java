@@ -32,6 +32,9 @@ public class RoleService {
         var permissions = permissionRepository.findAllById(request.getPermissions());
         if(permissions.isEmpty())
             throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
+        if(roleRepository.existsByName(request.getName())) {
+            throw new AppException(ErrorCode.ROLE_EXISTED);
+        }
         var role = roleMapper.toRole(request);
         role.setPermissions(new HashSet<>(permissions));
        // role = roleRepository.save(role);
@@ -45,7 +48,7 @@ public class RoleService {
             throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
         var role = roleMapper.toRoleUpdate(roleUpdateRequest);
         role.setPermissions(new HashSet<>(permissions));
-        role.setDescription(role.getName());
+      //  role.setDescription(role.getName());
         // role = roleRepository.save(role);
         return roleMapper.toRoleResponse(roleRepository.save(role));
     }

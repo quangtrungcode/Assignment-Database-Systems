@@ -27,4 +27,7 @@ public class UserCreationRequest {
     String phone;
     Date birthDate;
     String roleType;
+
+    String career;     // Chỉ dành cho Student
+    String profession; // Chỉ dành cho Lecturer
 }
