@@ -288,4 +288,34 @@ export const roleAPI = {
   },
 };
 
+export const courseAPI = {
+  getAll: () => {
+    return api.get('/identity/courses'); 
+  },
+  create: (courseData) => {
+    return api.post('/identity/courses', courseData);
+  },
+  update: (courseId, courseData) => {
+    return api.put(`/identity/courses/${courseId}`, courseData);
+  },
+  // 👇 THÊM API XÓA
+  delete: (courseId) => {
+    return api.delete(`/identity/courses/${courseId}`);
+  },
+
+  enroll: (courseId) => {
+    // API này không cần body vì Student ID được lấy từ token
+    return api.post(`/identity/courses/${courseId}/enroll`, {}); 
+  },
+
+  unenroll: (courseId) => {
+        return api.delete(`/identity/courses/${courseId}/unenroll`);
+    },
+
+  getMyEnrollments: () => {
+    return api.get('/identity/courses/my-enrollments');
+  }
+  // Nếu cần xóa/sửa thì thêm sau
+};
+
 export default api;

@@ -129,3 +129,11 @@
     padding: 20px;
   }
 }
+
+.course-card { 
+    border-left: 5px solid #00bcd4; /* Viền trái màu Cyan */
+}
+.course-card .card-icon {
+    background-color: #e0f7fa; /* Nền nhạt */
+    color: #00bcd4; /* Icon đậm */
+}

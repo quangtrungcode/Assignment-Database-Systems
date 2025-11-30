@@ -95,57 +95,53 @@
 // };
 
 // export default AdminDashboard;
-import React, { useState, useEffect } from 'react';
-import '../styles/Dashboard.css'; // Style chung
-import '../styles/AdminDashboard.css'; // Style riêng cho trang Admin (Grid layout nằm ở đây)
-import { userAPI, permissionAPI, roleAPI } from '../services/apiService';
+import React, { useState, useEffect, useCallback } from 'react'; // 👈 Thêm useCallback
+import '../styles/Dashboard.css';
+import '../styles/AdminDashboard.css';
+import { userAPI, permissionAPI, roleAPI, courseAPI } from '../services/apiService'; // Thêm courseAPI
 import { Link } from 'react-router-dom';
-import { FaUsers, FaUserShield, FaClipboardList } from 'react-icons/fa';
+import { FaUsers, FaUserShield, FaClipboardList, FaBook } from 'react-icons/fa';
 
-const AdminDashboard = () => {
+// Sử dụng React.memo để ngăn component re-render nếu props không đổi (tối ưu hiệu suất)
+const AdminDashboard = React.memo(() => { 
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [allPermissions, setAllPermissions] = useState([]);
-
-  // Hàm lấy Users
-  const fetchUsers = async () => {
+  const [courses, setCourses] = useState([]);
+  
+  // 👇 HÀM GỘP 4 API VÀ CHẠY SONG SONG
+  const fetchAllStats = useCallback(async () => {
     try {
-      const response = await userAPI.getAllUsers();
-      // Xử lý linh hoạt: API có thể trả về mảng trực tiếp hoặc nằm trong object .result
-      const data = response.data?.result || response.data || [];
-      if (Array.isArray(data)) setUsers(data);
-    } catch (error) {
-      console.error("Failed to fetch users:", error);
-    }
-  };
+        // Chạy tất cả các API cùng một lúc
+        const [usersRes, rolesRes, permissionsRes, coursesRes] = await Promise.all([
+            userAPI.getAllUsers(),
+            roleAPI.getAll(),
+            permissionAPI.getAll(),
+            courseAPI.getAll()
+        ]);
 
-  // Hàm lấy Permissions
-  const fetchPermissions = async () => {
-    try {
-      const response = await permissionAPI.getAll();
-      const data = response.data?.result || response.data || [];
-      if (Array.isArray(data)) setAllPermissions(data);
-    } catch (error) {
-      console.error("Failed to fetch permissions:", error);
-    }
-  };
+        // 1. Xử lý và trích xuất dữ liệu
+        const userData = usersRes.data?.result || usersRes.data || [];
+        const rolesData = rolesRes.data?.result || rolesRes.data || [];
+        const permsData = permissionsRes.data?.result || permissionsRes.data || [];
+        const coursesData = coursesRes.data?.result || coursesRes.data || [];
+        
+        // 2. Cập nhật tất cả State MỘT LẦN DUY NHẤT
+        setUsers(userData);
+        setRoles(rolesData);
+        setAllPermissions(permsData);
+        setCourses(coursesData);
 
-  // Hàm lấy Roles
-  const fetchRoles = async () => {
-    try {
-      const response = await roleAPI.getAll();
-      const data = response.data?.result || response.data || [];
-      if (Array.isArray(data)) setRoles(data);
     } catch (error) {
-      console.error("Failed to fetch roles:", error);
+        // Chỉ log lỗi thay vì crash ứng dụng nếu một API thất bại
+        console.error("Lỗi tải toàn bộ số liệu thống kê:", error);
     }
-  };
+  }, []); // Hàm này không có dependency nên chạy 1 lần
 
+  // 👇 GỌI HÀM KHI COMPONENT MOUNT
   useEffect(() => {
-    fetchUsers();
-    fetchPermissions();
-    fetchRoles();
-  }, []);
+    fetchAllStats();
+  }, [fetchAllStats]);
 
   return (
     <div className="dashboard-container">
@@ -155,8 +151,8 @@ const AdminDashboard = () => {
       
       <div className="dashboard-content">
         
-        {/* 👇 Class này sẽ được CSS xử lý thành 3 cột ngang hàng */}
-        <div className="dashboard-cards-grid">
+        {/* 👇 Bổ sung Style để đảm bảo 4 cột nằm ngang hàng nhau */}
+        <div className="dashboard-cards-grid" style={{gridTemplateColumns: 'repeat(4, 1fr)'}}>
           
           {/* Card Users */}
           <Link to="/admin/users" className="stat-card user-card">
@@ -164,8 +160,19 @@ const AdminDashboard = () => {
               <FaUsers />
             </div>
             <div className="card-info">
-              <h3>Tổng số người dùng</h3>
+              <h3>Người dùng</h3>
               <p className="stat-number">{users.length}</p>
+            </div>
+          </Link>
+          
+          {/* Card Courses */}
+          <Link to="/admin/courses" className="stat-card course-card">
+            <div className="card-icon">
+              <FaBook />
+            </div>
+            <div className="card-info">
+              <h3>Khóa học</h3>
+              <p className="stat-number">{courses.length}</p>
             </div>
           </Link>
 
@@ -175,18 +182,18 @@ const AdminDashboard = () => {
               <FaUserShield />
             </div>
             <div className="card-info">
-              <h3>Tổng số vai trò</h3>
+              <h3>Vai trò</h3>
               <p className="stat-number">{roles.length}</p>
             </div>
           </Link>
 
-          {/* Card Permissions */}
+          {/* Card Permissions (Cột thứ 4) */}
           <Link to="/admin/permissions" className="stat-card permission-card">
             <div className="card-icon">
               <FaClipboardList />
             </div>
             <div className="card-info">
-              <h3>Tổng số quyền</h3>
+              <h3>Quyền hạn</h3>
               <p className="stat-number">{allPermissions.length}</p>
             </div>
           </Link>
@@ -200,6 +207,6 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-};
+}); // 👈 Kết thúc với React.memo
 
 export default AdminDashboard;
