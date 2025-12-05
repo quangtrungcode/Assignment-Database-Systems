@@ -15,17 +15,19 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "Roles")
+@Table(name = "[Role]")
 public class Role {
     @Id
-    @Column(name = "Name", length = 50)
-    String name;
+    @Column(name = "RoleName", length = 50)
+    String roleName;
     @Column(name = "Description")
     String description;
+    @Column(name = "Level")
+    String level;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "RolePermissions", // 👈 TÊN BẢNG BẠN MUỐN DÙNG
+            name = "Role_Permission", // 👈 TÊN BẢNG BẠN MUỐN DÙNG
             joinColumns = @JoinColumn(name = "RoleName"), // Khóa ngoại trỏ về bảng Roles
             inverseJoinColumns = @JoinColumn(name = "PermissionName") // Khóa ngoại trỏ về bảng Permission
     )

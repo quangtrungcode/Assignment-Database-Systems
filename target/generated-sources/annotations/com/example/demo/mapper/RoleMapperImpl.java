@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-30T16:22:27+0700",
+    date = "2025-12-05T01:37:18+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.9 (Oracle Corporation)"
 )
 @Component
@@ -27,8 +27,9 @@ public class RoleMapperImpl implements RoleMapper {
 
         Role.RoleBuilder role = Role.builder();
 
-        role.name( request.getName() );
+        role.roleName( request.getRoleName() );
         role.description( request.getDescription() );
+        role.level( request.getLevel() );
 
         return role.build();
     }
@@ -41,7 +42,9 @@ public class RoleMapperImpl implements RoleMapper {
 
         Role.RoleBuilder role = Role.builder();
 
-        role.name( request.getName() );
+        role.roleName( request.getRoleName() );
+        role.description( request.getDescription() );
+        role.level( request.getLevel() );
 
         return role.build();
     }
@@ -54,8 +57,9 @@ public class RoleMapperImpl implements RoleMapper {
 
         RoleResponse.RoleResponseBuilder roleResponse = RoleResponse.builder();
 
-        roleResponse.name( role.getName() );
+        roleResponse.roleName( role.getRoleName() );
         roleResponse.description( role.getDescription() );
+        roleResponse.level( role.getLevel() );
         roleResponse.permissions( permissionSetToPermissionResponseSet( role.getPermissions() ) );
 
         return roleResponse.build();
@@ -68,7 +72,7 @@ public class RoleMapperImpl implements RoleMapper {
 
         PermissionResponse.PermissionResponseBuilder permissionResponse = PermissionResponse.builder();
 
-        permissionResponse.name( permission.getName() );
+        permissionResponse.permissionName( permission.getPermissionName() );
         permissionResponse.description( permission.getDescription() );
 
         return permissionResponse.build();

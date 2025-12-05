@@ -14,7 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "Students")
+@Table(name = "Student")
 // Mapping: Cột StudentID trong bảng Students sẽ khớp với UserID trong bảng Users
 @PrimaryKeyJoinColumn(name = "StudentID")
 public class Student extends User {
@@ -24,7 +24,7 @@ public class Student extends User {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "Enrollments", // Tên bảng trung gian trong SQL
+            name = "Enrollment", // Tên bảng trung gian trong SQL
             joinColumns = @JoinColumn(name = "StudentID"), // Khóa ngoại trỏ về Student
             inverseJoinColumns = @JoinColumn(name = "CourseID") // Khóa ngoại trỏ về Course
     )

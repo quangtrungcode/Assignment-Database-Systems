@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Setter
@@ -15,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "Users")
+@Table(name = "[User]")
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public class User {
@@ -33,8 +34,8 @@ public class User {
     @Column(name = "Gender", length = 10)
     String gender;
 
-    @Column(name = "Phone", length = 15)
-    String phone;
+//    @Column(name = "Phone", length = 15)
+//    String phone;
 
     @Column(name = "BirthDate")
     @Temporal(TemporalType.DATE)
@@ -62,6 +63,13 @@ public class User {
     Role role; // Tên trường là Role
 
 
+    @ElementCollection(fetch = FetchType.LAZY) // (1) Khai báo đây là tập hợp các giá trị đơn giản
+    @CollectionTable(
+            name = "User_Phone",               // (2) Tên bảng phụ trong DB
+            joinColumns = @JoinColumn(name = "UserID") // (3) Khóa ngoại trỏ về bảng Users
+    )
+    @Column(name = "Phone") // (4) Tên cột lưu số điện thoại trong bảng User_Phone
+    private Set<String> phones = new HashSet<>();
     /**
      * Phương thức được gọi trước khi đối tượng được lưu (persist) lần đầu tiên.
      * Vẫn giữ nguyên để xử lý giá trị mặc định cho CreatedAt và Roles.

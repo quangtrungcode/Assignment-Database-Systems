@@ -74,7 +74,7 @@ public class UserController {
 
     @PutMapping("/{userId}/profile") // Đường dẫn sẽ là: PUT /users/USR001/profile
 // @PreAuthorize("hasRole('student')") // Nếu muốn chặn chỉ cho student
-    public ApiResponse<UserResponse> updateProfile(@PathVariable String userId, @RequestBody ProfileUpdateRequest request) {
+    public ApiResponse<UserResponse> updateProfile(@PathVariable String userId, @RequestBody @Valid ProfileUpdateRequest request) {
         ApiResponse<UserResponse>apiResponse=new ApiResponse<>();
         apiResponse.setResult(userService.updateProfile(userId,request));
         return apiResponse;

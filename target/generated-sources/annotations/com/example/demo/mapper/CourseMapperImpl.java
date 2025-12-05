@@ -2,10 +2,8 @@ package com.example.demo.mapper;
 
 import com.example.demo.dto.request.CourseCreationRequest;
 import com.example.demo.dto.response.CourseResponse;
-import com.example.demo.dto.response.LecturerShortInfo;
 import com.example.demo.dto.response.StudentCourseResponse;
 import com.example.demo.entity.Course;
-import com.example.demo.entity.Lecturer;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.processing.Generated;
@@ -13,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-30T20:49:56+0700",
+    date = "2025-12-03T19:58:00+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.9 (Oracle Corporation)"
 )
 @Component
@@ -35,20 +33,6 @@ public class CourseMapperImpl implements CourseMapper {
     }
 
     @Override
-    public LecturerShortInfo toLecturerShortInfo(Lecturer lecturer) {
-        if ( lecturer == null ) {
-            return null;
-        }
-
-        LecturerShortInfo.LecturerShortInfoBuilder lecturerShortInfo = LecturerShortInfo.builder();
-
-        lecturerShortInfo.id( lecturer.getUserID() );
-        lecturerShortInfo.fullName( lecturer.getFullName() );
-
-        return lecturerShortInfo.build();
-    }
-
-    @Override
     public CourseResponse toCourseResponse(Course course) {
         if ( course == null ) {
             return null;
@@ -56,7 +40,6 @@ public class CourseMapperImpl implements CourseMapper {
 
         CourseResponse.CourseResponseBuilder courseResponse = CourseResponse.builder();
 
-        courseResponse.lecturer( toLecturerShortInfo( course.getLecturer() ) );
         courseResponse.maxCapacity( course.getMaxCapacity() );
         courseResponse.courseID( course.getCourseID() );
         courseResponse.courseName( course.getCourseName() );

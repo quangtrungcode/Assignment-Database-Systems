@@ -6,6 +6,7 @@ import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.CourseResponse;
 import com.example.demo.dto.response.StudentCourseResponse;
 import com.example.demo.service.CourseService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,30 +24,30 @@ public class CourseController {
     CourseService courseService;
 
     // API 1: Dành cho Admin xem danh sách dạy của GV bất kỳ
-    @GetMapping("/lecturer/{lecturerId}")
-    @PreAuthorize("hasAuthority('ROLE_admin')")
-    public ApiResponse<List<CourseResponse>> getCoursesByLecturer(@PathVariable String lecturerId) {
-        return ApiResponse.<List<CourseResponse>>builder()
-                .result(courseService.getCoursesByLecturerId(lecturerId))
-                .build();
-    }
+//    @GetMapping("/lecturer/{lecturerId}")
+//    @PreAuthorize("hasAuthority('ROLE_admin')")
+//    public ApiResponse<List<CourseResponse>> getCoursesByLecturer(@PathVariable String lecturerId) {
+//        return ApiResponse.<List<CourseResponse>>builder()
+//                .result(courseService.getCoursesByLecturerId(lecturerId))
+//                .build();
+//    }
+//
+//    // API 2: Dành cho Giảng viên tự xem lớp mình dạy
+//    @GetMapping("/my-teaching")
+//    @PreAuthorize("hasAuthority('ROLE_lecturer')") // Chỉ giảng viên mới vào được
+//    public ApiResponse<List<CourseResponse>> getMyTeachingCourses() {
+//        return ApiResponse.<List<CourseResponse>>builder()
+//                .result(courseService.getMyTeachingCourses())
+//                .build();
+//    }
 
-    // API 2: Dành cho Giảng viên tự xem lớp mình dạy
-    @GetMapping("/my-teaching")
-    @PreAuthorize("hasAuthority('ROLE_lecturer')") // Chỉ giảng viên mới vào được
-    public ApiResponse<List<CourseResponse>> getMyTeachingCourses() {
-        return ApiResponse.<List<CourseResponse>>builder()
-                .result(courseService.getMyTeachingCourses())
-                .build();
-    }
-
-    @PostMapping
-    //@PreAuthorize("hasAuthority('ROLE_admin')") // Chỉ Admin mới được tạo khóa học
-    public ApiResponse<CourseResponse> createCourse(@RequestBody CourseCreationRequest request) {
-        return ApiResponse.<CourseResponse>builder()
-                .result(courseService.createCourse(request))
-                .build();
-    }
+//    @PostMapping
+//    //@PreAuthorize("hasAuthority('ROLE_admin')") // Chỉ Admin mới được tạo khóa học
+//    public ApiResponse<CourseResponse> createCourse(@RequestBody @Valid CourseCreationRequest request) {
+//        return ApiResponse.<CourseResponse>builder()
+//                .result(courseService.createCourse(request))
+//                .build();
+//    }
 
     @GetMapping
 // @PreAuthorize("hasAuthority('ROLE_admin')") // Nếu muốn chỉ Admin mới xem được
@@ -57,16 +58,16 @@ public class CourseController {
                 .build();
     }
 
-    @PutMapping("/{courseId}")
-    //@PreAuthorize("hasAuthority('ROLE_admin')") // Chỉ Admin được cập nhật
-    public ApiResponse<CourseResponse> updateCourse(
-            @PathVariable String courseId,
-            @RequestBody CourseUpdateRequest request) {
-
-        return ApiResponse.<CourseResponse>builder()
-                .result(courseService.updateCourse(courseId, request))
-                .build();
-    }
+//    @PutMapping("/{courseId}")
+//    //@PreAuthorize("hasAuthority('ROLE_admin')") // Chỉ Admin được cập nhật
+//    public ApiResponse<CourseResponse> updateCourse(
+//            @PathVariable String courseId,
+//            @RequestBody CourseUpdateRequest request) {
+//
+//        return ApiResponse.<CourseResponse>builder()
+//                .result(courseService.updateCourse(courseId, request))
+//                .build();
+//    }
 
     @DeleteMapping("/{courseId}")
     //@PreAuthorize("hasAuthority('ROLE_admin')") // Chỉ Admin được xóa

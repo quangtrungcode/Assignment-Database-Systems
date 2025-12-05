@@ -36,54 +36,54 @@ public class CourseService {
     private final StudentRepository studentRepository;
 
     // 1. Admin hoặc Client xem khóa học của một Giảng viên cụ thể
-    public List<CourseResponse> getCoursesByLecturerId(String lecturerId) {
-        // Kiểm tra xem giảng viên có tồn tại không (Optional)
-        if (!userRepository.existsById(lecturerId)) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-
-        List<Course> courses = courseRepository.findByLecturer_UserID(lecturerId);
-        return courses.stream()
-                .map(courseMapper::toCourseResponse)
-                .toList();
-    }
+//    public List<CourseResponse> getCoursesByLecturerId(String lecturerId) {
+//        // Kiểm tra xem giảng viên có tồn tại không (Optional)
+//        if (!userRepository.existsById(lecturerId)) {
+//            throw new AppException(ErrorCode.USER_NOT_FOUND);
+//        }
+//
+//        List<Course> courses = courseRepository.findByLecturer_UserID(lecturerId);
+//        return courses.stream()
+//                .map(courseMapper::toCourseResponse)
+//                .toList();
+//    }
 
     // 2. Giảng viên tự xem khóa học của mình (Lấy ID từ Token)
-    public List<CourseResponse> getMyTeachingCourses() {
-        // Lấy ID người dùng đang đăng nhập từ Security Context
-        var context = SecurityContextHolder.getContext();
-        String currentUserId = context.getAuthentication().getName();
+//    public List<CourseResponse> getMyTeachingCourses() {
+//        // Lấy ID người dùng đang đăng nhập từ Security Context
+//        var context = SecurityContextHolder.getContext();
+//        String currentUserId = context.getAuthentication().getName();
+//
+//        List<Course> courses = courseRepository.findByLecturer_UserID(currentUserId);
+//        return courses.stream()
+//                .map(courseMapper::toCourseResponse)
+//                .toList();
+//    }
 
-        List<Course> courses = courseRepository.findByLecturer_UserID(currentUserId);
-        return courses.stream()
-                .map(courseMapper::toCourseResponse)
-                .toList();
-    }
 
 
-
-    public CourseResponse createCourse(CourseCreationRequest request) {
-        // 1. Kiểm tra Giảng viên có tồn tại không
-        Lecturer lecturer = lectureRepository.findById(request.getLecturerId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-        // 2. Sinh Course ID tự động (CRS + 4 số)
-        Long nextValue = courseRepository.getNextCourseIdSequence();
-        String formattedId = String.format("CRS%04d", nextValue);
-
-        // 3. Map dữ liệu từ Request sang Entity
-        Course course = courseMapper.toCourse(request);
-        course.setCourseID(formattedId);
-        course.setLecturer(lecturer);
-
-        // Xử lý giá trị mặc định cho MaxCapacity nếu người dùng không nhập
-        if (course.getMaxCapacity() <= 0) {
-            course.setMaxCapacity(60); // Mặc định 60
-        }
-
-        // 4. Lưu vào Database
-        return courseMapper.toCourseResponse(courseRepository.save(course));
-    }
+//    public CourseResponse createCourse(CourseCreationRequest request) {
+//        // 1. Kiểm tra Giảng viên có tồn tại không
+//        Lecturer lecturer = lectureRepository.findById(request.getLecturerId())
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+//
+//        // 2. Sinh Course ID tự động (CRS + 4 số)
+//        Long nextValue = courseRepository.getNextCourseIdSequence();
+//        String formattedId = String.format("CRS%04d", nextValue);
+//
+//        // 3. Map dữ liệu từ Request sang Entity
+//        Course course = courseMapper.toCourse(request);
+//        course.setCourseID(formattedId);
+//        course.setLecturer(lecturer);
+//
+//        // Xử lý giá trị mặc định cho MaxCapacity nếu người dùng không nhập
+//        if (course.getMaxCapacity() <= 0) {
+//            course.setMaxCapacity(60); // Mặc định 60
+//        }
+//
+//        // 4. Lưu vào Database
+//        return courseMapper.toCourseResponse(courseRepository.save(course));
+//    }
 
     public List<CourseResponse> getAllCourses() {
         // Lấy tất cả khóa học
@@ -95,38 +95,38 @@ public class CourseService {
                 .toList();
     }
 
-    public CourseResponse updateCourse(String courseId, CourseUpdateRequest request) {
-        // 1. Tìm khóa học cần cập nhật
-        Course existingCourse = courseRepository.findById(courseId)
-                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
-
-        // 2. Cập nhật các trường (Chỉ cập nhật nếu Request cung cấp giá trị mới)
-
-        // Cập nhật Tên khóa học
-        if (request.getCourseName() != null && !request.getCourseName().isEmpty()) {
-            existingCourse.setCourseName(request.getCourseName());
-        }
-
-        // Cập nhật Tín chỉ
-        if (request.getCredits() != null && request.getCredits() > 0) {
-            existingCourse.setCredits(request.getCredits());
-        }
-
-        // Cập nhật Sĩ số tối đa
-        if (request.getMaxCapacity() != null && request.getMaxCapacity() > 0) {
-            existingCourse.setMaxCapacity(request.getMaxCapacity());
-        }
-
-        // Cập nhật Giảng viên
-        if (request.getLecturerId() != null && !request.getLecturerId().isEmpty()) {
-            Lecturer newLecturer = lectureRepository.findById(request.getLecturerId())
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)); // Giả sử lỗi này bao gồm cả Lecturer
-            existingCourse.setLecturer(newLecturer);
-        }
-
-        // 3. Lưu và trả về kết quả
-        return courseMapper.toCourseResponse(courseRepository.save(existingCourse));
-    }
+//    public CourseResponse updateCourse(String courseId, CourseUpdateRequest request) {
+//        // 1. Tìm khóa học cần cập nhật
+//        Course existingCourse = courseRepository.findById(courseId)
+//                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+//
+//        // 2. Cập nhật các trường (Chỉ cập nhật nếu Request cung cấp giá trị mới)
+//
+//        // Cập nhật Tên khóa học
+//        if (request.getCourseName() != null && !request.getCourseName().isEmpty()) {
+//            existingCourse.setCourseName(request.getCourseName());
+//        }
+//
+//        // Cập nhật Tín chỉ
+//        if (request.getCredits() != null && request.getCredits() > 0) {
+//            existingCourse.setCredits(request.getCredits());
+//        }
+//
+//        // Cập nhật Sĩ số tối đa
+//        if (request.getMaxCapacity() != null && request.getMaxCapacity() > 0) {
+//            existingCourse.setMaxCapacity(request.getMaxCapacity());
+//        }
+//
+//        // Cập nhật Giảng viên
+//        if (request.getLecturerId() != null && !request.getLecturerId().isEmpty()) {
+//            Lecturer newLecturer = lectureRepository.findById(request.getLecturerId())
+//                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)); // Giả sử lỗi này bao gồm cả Lecturer
+//            existingCourse.setLecturer(newLecturer);
+//        }
+//
+//        // 3. Lưu và trả về kết quả
+//        return courseMapper.toCourseResponse(courseRepository.save(existingCourse));
+//    }
 
     public void deleteCourse(String courseId) {
         // 1. Kiểm tra khóa học có tồn tại không

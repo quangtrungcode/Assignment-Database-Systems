@@ -100,14 +100,14 @@ public class AuthenticationService {
         if (userRole != null) {
 
             // 3. Thêm tên Role vào scope
-            stringJoiner.add("ROLE_" + userRole.getName());
+            stringJoiner.add("ROLE_" + userRole.getRoleName());
 
             // 4. Kiểm tra Permissions (Mối quan hệ ManyToMany/Set)
             Set<Permission> permissions = userRole.getPermissions();
 
             // 5. Sử dụng CollectionUtils.isEmpty() HỢP LỆ trên Set<Permission>
             if (!CollectionUtils.isEmpty(permissions)) {
-                permissions.forEach(permission -> stringJoiner.add(permission.getName()));
+                permissions.forEach(permission -> stringJoiner.add(permission.getPermissionName()));
             }
         }
 

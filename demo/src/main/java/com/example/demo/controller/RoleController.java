@@ -5,6 +5,7 @@ import com.example.demo.dto.request.RoleUpdateRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.RoleResponse;
 import com.example.demo.service.RoleService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping
-    ApiResponse<RoleResponse> create(@RequestBody RoleRequest request){
+    ApiResponse<RoleResponse> create(@RequestBody @Valid RoleRequest request){
         return ApiResponse.<RoleResponse>builder()
                 .result(roleService.create(request))
                 .build();

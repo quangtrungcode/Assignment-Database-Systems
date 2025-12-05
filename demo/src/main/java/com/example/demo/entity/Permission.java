@@ -18,8 +18,8 @@ import java.util.Set;
 @Table(name = "Permission")
 public class Permission {
     @Id
-    @Column(name = "Name", length = 50)
-    String name;
+    @Column(name = "PermissionName", length = 50)
+    String permissionName;
     @Column(name = "Description")
     String description;
 

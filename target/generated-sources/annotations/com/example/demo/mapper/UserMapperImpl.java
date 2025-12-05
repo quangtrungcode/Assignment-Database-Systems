@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-30T20:49:56+0700",
+    date = "2025-12-05T00:32:33+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.9 (Oracle Corporation)"
 )
 @Component
@@ -34,9 +34,12 @@ public class UserMapperImpl implements UserMapper {
         user.email( userCreationRequest.getEmail() );
         user.fullName( userCreationRequest.getFullName() );
         user.gender( userCreationRequest.getGender() );
-        user.phone( userCreationRequest.getPhone() );
         user.birthDate( userCreationRequest.getBirthDate() );
         user.passwordHash( userCreationRequest.getPasswordHash() );
+        Set<String> set = userCreationRequest.getPhones();
+        if ( set != null ) {
+            user.phones( new LinkedHashSet<String>( set ) );
+        }
 
         return user.build();
     }
@@ -53,7 +56,10 @@ public class UserMapperImpl implements UserMapper {
         userResponse.email( user.getEmail() );
         userResponse.fullName( user.getFullName() );
         userResponse.gender( user.getGender() );
-        userResponse.phone( user.getPhone() );
+        Set<String> set = user.getPhones();
+        if ( set != null ) {
+            userResponse.phones( new LinkedHashSet<String>( set ) );
+        }
         userResponse.birthDate( user.getBirthDate() );
         userResponse.passwordHash( user.getPasswordHash() );
         userResponse.role( roleToRoleResponse( user.getRole() ) );
@@ -73,8 +79,23 @@ public class UserMapperImpl implements UserMapper {
         user.setEmail( request.getEmail() );
         user.setFullName( request.getFullName() );
         user.setGender( request.getGender() );
-        user.setPhone( request.getPhone() );
         user.setBirthDate( request.getBirthDate() );
+        if ( user.getPhones() != null ) {
+            Set<String> set = request.getPhones();
+            if ( set != null ) {
+                user.getPhones().clear();
+                user.getPhones().addAll( set );
+            }
+            else {
+                user.setPhones( null );
+            }
+        }
+        else {
+            Set<String> set = request.getPhones();
+            if ( set != null ) {
+                user.setPhones( new LinkedHashSet<String>( set ) );
+            }
+        }
     }
 
     @Override
@@ -99,7 +120,7 @@ public class UserMapperImpl implements UserMapper {
 
         PermissionResponse.PermissionResponseBuilder permissionResponse = PermissionResponse.builder();
 
-        permissionResponse.name( permission.getName() );
+        permissionResponse.permissionName( permission.getPermissionName() );
         permissionResponse.description( permission.getDescription() );
 
         return permissionResponse.build();
@@ -125,8 +146,9 @@ public class UserMapperImpl implements UserMapper {
 
         RoleResponse.RoleResponseBuilder roleResponse = RoleResponse.builder();
 
-        roleResponse.name( role.getName() );
+        roleResponse.roleName( role.getRoleName() );
         roleResponse.description( role.getDescription() );
+        roleResponse.level( role.getLevel() );
         roleResponse.permissions( permissionSetToPermissionResponseSet( role.getPermissions() ) );
 
         return roleResponse.build();

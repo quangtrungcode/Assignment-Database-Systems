@@ -17,7 +17,7 @@ public class UserSearchRequest {
     String gender;
     String phone;
     //Date birthDate;
-    String roleId;
+    String roleName;
     //Date createdAt;
     Date birthDateFrom;
     Date birthDateTo;

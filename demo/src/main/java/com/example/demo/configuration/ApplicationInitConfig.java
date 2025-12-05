@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,32 +33,32 @@ public class ApplicationInitConfig {
                                         RoleRepository roleRepository,
                                         PermissionRepository permissionRepository){
         return args -> {
-            if (userRepository.findByFullName("admin").isEmpty()
-                    &&roleRepository.findById("admin").isEmpty()
-                    &&permissionRepository.findById("all").isEmpty()){
+            if (userRepository.findByFullName("admin123").isEmpty()
+                    &&roleRepository.findById("Admin").isEmpty()){
+                   // &&permissionRepository.findById("all").isEmpty()){
 
-                Permission permission=Permission.builder()
-                        .name("ALL")
-                        .description("ALL PERMISSION")
-                        .build();
-                  permissionRepository.save(permission);
-              var  permission1 =permissionRepository.findById(permission.getName()).orElseThrow();
+//                Permission permission=Permission.builder()
+//                        .name("ALL")
+//                        .description("ALL PERMISSION")
+//                        .build();
+//                  permissionRepository.save(permission);
+//              var  permission1 =permissionRepository.findById(permission.getName()).orElseThrow();
                 Role role=Role.builder()
-                        .name("admin")
+                        .roleName("Admin")
                         .description("Quản trị viên hệ thống")
-                        .permissions(Set.of(permission1))
+                       // .permissions(Set.of(permission1))
                         .build();
 
                 roleRepository.save(role);
 
                 Long nextValue = userRepository.getNextUserIdSequence();
-                String formattedId = String.format("USR%04d", nextValue);
+                String formattedId = String.format("USER%04d", nextValue);
                 User user = User.builder()
                         .userID(formattedId)
-                        .fullName("admin")
+                        .fullName("admin123")
                         .email("admin@gmail.com")
-                        .passwordHash(passwordEncoder.encode("admin"))
-                        .phone("0123456789")
+                        .passwordHash(passwordEncoder.encode("admin123"))
+                        .phones(new HashSet<>(Collections.singleton("0123456789")))
                         .createdAt(new Date())
                         .birthDate(new Date())
                         .gender("Nam")
@@ -67,7 +68,7 @@ public class ApplicationInitConfig {
                         .build();
 
                 userRepository.save(user);
-                log.warn("admin user has been created with default password: admin, please change it");
+                log.warn("admin user has been created with default password: admin123, please change it");
             }
         };
     }

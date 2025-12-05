@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "Courses")
+@Table(name = "Course")
 public class Course {
 
     @Id
@@ -33,10 +33,15 @@ public class Course {
 
     // --- Mối quan hệ N-1 với Lecturer ---
     // Nhiều khóa học thuộc về 1 giảng viên
-    @ManyToOne
-    @JoinColumn(name = "LectureID") // Tên cột FK trong bảng Courses
-    @JsonManagedReference
-    Lecturer lecturer;
+//    @ManyToOne
+//    @JoinColumn(name = "LectureID") // Tên cột FK trong bảng Courses
+//    @JsonManagedReference
+//    Lecturer lecturer;
+
+    @ManyToMany(mappedBy = "courses")
+    @JsonIgnore
+    Set<Lecturer> lecturers;
+
 
     // --- Mối quan hệ M-N với Student ---
     // Khai báo ngược lại để Hibernate hiểu (mappedBy trỏ tới tên biến bên Student)

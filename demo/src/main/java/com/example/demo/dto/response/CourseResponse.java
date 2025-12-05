@@ -12,7 +12,7 @@ public class CourseResponse {
     String courseID;
     String courseName;
     int credits;
-    LecturerShortInfo lecturer;
+  //  LecturerShortInfo lecturer;
 
     // 👇 Hai thông số quan trọng
     int maxCapacity;   // Sức chứa (Ví dụ: 60)

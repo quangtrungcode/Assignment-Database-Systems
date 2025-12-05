@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.corundumstudio.socketio.SocketIOServer;
 import com.example.demo.dto.request.ProfileUpdateRequest;
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserSearchRequest;
@@ -31,10 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +45,7 @@ public class UserService {
     RoleRepository roleRepository;
     CourseRepository courseRepository;
     StudentRepository studentRepository;
+    SocketIOServer socketIOServer;
 //    Validator validator;
     @Transactional
 //    public UserResponse createUser(UserCreationRequest request) {
@@ -78,9 +77,6 @@ public class UserService {
         List<ErrorCode> errors = new ArrayList<>();
 
         // 1. Validation cơ bản
-//        if(userRepository.existsByFullName(request.getFullName())) {
-//            errors.add(ErrorCode.FULL_NAME_EXISTED);
-//        }
         if (userRepository.existsByEmail(request.getEmail())) {
             errors.add(ErrorCode.EMAIL_EXISTED);
         }
@@ -88,54 +84,49 @@ public class UserService {
             throw new CustomValidationException(errors);
         }
 
-        // 2. Lấy Role để xác định loại đối tượng cần tạo
-        Role role = roleRepository.findById(request.getRoleType())
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        // 2. Lấy Role (FIX LỖI: Kiểm tra null trước khi findById)
+        Role role = null;
+        if (request.getRoleType() != null && !request.getRoleType().trim().isEmpty()) {
+            role = roleRepository.findById(request.getRoleType()).orElse(null);
+        }
 
-        // 3. Sinh ID (Giữ nguyên logic USR của bạn)
+        // 3. Sinh ID
         Long nextValue = userRepository.getNextUserIdSequence();
-        String formattedId = String.format("USR%04d", nextValue);
+        String formattedId = String.format("USER%04d", nextValue);
 
-        // 4. Khởi tạo đối tượng dựa trên Role (QUAN TRỌNG)
+        // 4. Khởi tạo đối tượng dựa trên Role
         User user;
 
-        // Lưu ý: role.getRoleName() cần khớp với tên trong DB (ví dụ: "STUDENT", "LECTURER")
-        String roleName = role.getName() != null ? role.getName().toUpperCase() : "";
+        // Kiểm tra role có null không trước khi getRoleName
+        String roleName = (role != null && role.getRoleName() != null)
+                ? role.getRoleName().toUpperCase()
+                : "";
 
         user = switch (roleName) {
             case "STUDENT" ->
-                // Tạo đối tượng Student
                     Student.builder()
-                            .career(request.getCareer()) // Map trường riêng
+                            .career(request.getCareer())
                             .build();
-            case "LECTURERS" ->
-                // Tạo đối tượng Lecturer
+            case "LECTURER" ->
                     Lecturer.builder()
-                            .profession(request.getProfession()) // Map trường riêng
+                            .profession(request.getProfession())
                             .build();
             default ->
-                // Các role khác (Admin, Staff...) thì tạo User thường
-                    User.builder().build();
+                    User.builder().build(); // Nếu không chọn role, tạo User thường
         };
 
-        // 5. Map các dữ liệu chung cho đối tượng 'user'
-        // Vì ta đã khởi tạo 'user' là Student hoặc Lecturer ở trên,
-        // nên việc set dữ liệu này sẽ áp dụng cho đúng đối tượng đó.
+        // 5. Map dữ liệu chung
         user.setUserID(formattedId);
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setGender(request.getGender());
-        user.setPhone(request.getPhone());
-        user.setBirthDate(request.getBirthDate());
-
+        user.setPhones(request.getPhones());
+        user.setBirthDate(request.getBirthDate()); // Lưu ý: Nếu birthDate null thì trường này sẽ là null trong DB
         user.setPasswordHash(passwordEncoder.encode(request.getPasswordHash()));
-        user.setRole(role);
 
-        // (Tùy chọn) Nếu bạn muốn dùng Mapper để map các trường chung cho gọn code:
-        // userMapper.updateUserFromRequest(request, user); // Yêu cầu MapStruct hỗ trợ @MappingTarget
+        user.setRole(role); // Set role (có thể là null)
 
         // 6. Lưu vào DB
-        // Hibernate sẽ tự động Insert vào bảng Users VÀ bảng con (Students/Lecturers) nếu cần
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -150,7 +141,7 @@ public class UserService {
     }
 
     @Transactional
-    @PreAuthorize("hasAuthority('ROLE_admin')")
+    @PreAuthorize("hasAuthority('ROLE_Admin')")
     public List<UserResponse> getAllUsers() {
 
         return  userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
@@ -183,15 +174,23 @@ public class UserService {
 //        if(userRepository.existsByFullName(request.getFullName())) {
 //            errors.add(ErrorCode.FULL_NAME_EXISTED);
 //        }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            errors.add(ErrorCode.EMAIL_EXISTED);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if(!(user.getEmail().equals(request.getEmail()))) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                errors.add(ErrorCode.EMAIL_EXISTED);
+            }
         }
         if (!errors.isEmpty()) {
             throw new CustomValidationException(errors);
         }
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Role role = null;
+        if (request.getRole() != null && !request.getRole().trim().isEmpty()) {
+            role = roleRepository.findById(request.getRole()).orElse(null);
+        }
         // 2. Map các thông tin chung (Họ tên, Email, SĐT, Ngày sinh...)
         // Lưu ý: Trong UserMapper, nên ignore field 'role' để tránh lỗi đè
         userMapper.updateUser(user, request);
@@ -213,10 +212,13 @@ public class UserService {
                 lecturer.setProfession(request.getProfession());
             }
         }
-
+        user.setRole(role);
         // 5. Lưu và trả về
         // Hibernate tự động update vào bảng Users và bảng con tương ứng
-        return userMapper.toUserResponse(userRepository.save(user));
+        UserResponse userResponse=userMapper.toUserResponse(userRepository.save(user));
+        socketIOServer.getBroadcastOperations().sendEvent("UPDATE_USER_SUCCESS", userResponse.getUserID());
+       // return userMapper.toUserResponse(userRepository.save(user));
+        return userResponse;
     }
 
     @Transactional
@@ -237,88 +239,173 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+
     private Specification<User> buildUserSpecification(UserSearchRequest request) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // 1. Lọc theo userID (Tìm kiếm chính xác)
-            if (request.getUserID() != null && !request.getUserID().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("userID"), request.getUserID()));
+            // 1. UserID: Đổi sang LIKE để tìm gần đúng (VD: nhập "001" ra "USER001")
+            if (request.getUserID() != null && !request.getUserID().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("userID")),
+                        "%" + request.getUserID().toLowerCase().trim() + "%"
+                ));
             }
 
-            // 2. Lọc theo email (Tìm kiếm tương đối - LIKE)
-            if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-                // Sẽ tìm các email có chứa chuỗi tìm kiếm
-                predicates.add(criteriaBuilder.like(root.get("email"), "%" + request.getEmail() + "%"));
+            // 2. Email: Đã dùng LIKE, thêm lower() để không phân biệt hoa thường
+            if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("email")),
+                        "%" + request.getEmail().toLowerCase().trim() + "%"
+                ));
             }
 
-            // 3. Lọc theo fullName (Tìm kiếm tương đối - LIKE)
-            if (request.getFullName() != null && !request.getFullName().isEmpty()) {
-                // Sẽ tìm các tên có chứa chuỗi tìm kiếm
-                predicates.add(criteriaBuilder.like(root.get("fullName"), "%" + request.getFullName() + "%"));
+            // 3. FullName: Thêm lower()
+            if (request.getFullName() != null && !request.getFullName().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("fullName")),
+                        "%" + request.getFullName().toLowerCase().trim() + "%"
+                ));
             }
 
-            // 4. Lọc theo gender (Tìm kiếm chính xác)
-            if (request.getGender() != null && !request.getGender().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("gender"), request.getGender()));
+            // 4. Gender: Thường là Dropdown cố định nên giữ nguyên EQUAL
+            // (Nếu muốn nhập tay thì mới đổi sang LIKE)
+            if (request.getGender() != null && !request.getGender().trim().isEmpty()) {
+                // Giả sử DB lưu "Nam", "Nữ" chính xác
+                predicates.add(criteriaBuilder.equal(root.get("gender"), request.getGender().trim()));
             }
 
-            // 5. Lọc theo phone (Tìm kiếm chính xác)
-            if (request.getPhone() != null && !request.getPhone().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("phone"), request.getPhone()));
+            // 5. Phone: Đổi sang LIKE (VD: nhập "999" tìm số đuôi 999)
+            if (request.getPhone() != null && !request.getPhone().trim().isEmpty()) {
+                // Lưu ý: Nếu cột phone trong DB là List<String> (@ElementCollection) thì cần dùng JOIN.
+                // Nếu là String đơn giản thì dùng code dưới:
+                predicates.add(criteriaBuilder.like(root.get("phone"), "%" + request.getPhone().trim() + "%"));
             }
 
-            // 6. Lọc theo roleId (Sử dụng JOIN, giả định Entity User có trường 'role' là quan hệ)
-            if (request.getRoleId() != null && !request.getRoleId().isEmpty()) {
-                // Giả định: Trường "role" trong Entity User là một quan hệ đến Entity Role
-                predicates.add(criteriaBuilder.equal(root.get("role").get("name"), request.getRoleId()));
+            // 6. Role: Đổi sang LIKE (Tìm role gần đúng)
+            if (request.getRoleName() != null && !request.getRoleName().trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("role").get("roleName")),
+                        "%" + request.getRoleName().toLowerCase().trim() + "%"
+                ));
             }
 
+            // --- XỬ LÝ NGÀY THÁNG (GIỮ NGUYÊN) ---
             List<Predicate> birthDatePredicates = new ArrayList<>();
-
-            // Điều kiện BẮT ĐẦU (birthDateFrom)
             if (request.getBirthDateFrom() != null) {
                 birthDatePredicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("birthDate"), request.getBirthDateFrom()));
             }
-
-            // Điều kiện KẾT THÚC (birthDateTo)
             if (request.getBirthDateTo() != null) {
                 birthDatePredicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("birthDate"), request.getBirthDateTo()));
             }
-
-            // Nếu có điều kiện về Ngày Sinh, tạo một Predicate kết hợp bằng AND
             if (!birthDatePredicates.isEmpty()) {
-                // Predicate này = (birthDate >= From AND birthDate <= To)
                 predicates.add(criteriaBuilder.and(birthDatePredicates.toArray(new Predicate[0])));
             }
 
             List<Predicate> createdAtPredicates = new ArrayList<>();
-
-            // Điều kiện BẮT ĐẦU (createdAtFrom)
             if (request.getCreatedAtFrom() != null) {
                 createdAtPredicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), request.getCreatedAtFrom()));
             }
-
-            // Điều kiện KẾT THÚC (createdAtTo)
             if (request.getCreatedAtTo() != null) {
                 createdAtPredicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), request.getCreatedAtTo()));
             }
-
-            // Nếu có điều kiện về Ngày Tạo, tạo một Predicate kết hợp bằng AND
             if (!createdAtPredicates.isEmpty()) {
-                // Predicate này = (createdAt >= From AND createdAt <= To)
                 predicates.add(criteriaBuilder.and(createdAtPredicates.toArray(new Predicate[0])));
             }
 
+            // --- KẾT QUẢ CUỐI CÙNG ---
+
             if (predicates.isEmpty()) {
-                // Trả về một điều kiện 'luôn đúng' (truy vấn không có mệnh đề WHERE),
-                // có nghĩa là trả về tất cả người dùng.
-                return criteriaBuilder.conjunction();
+                return criteriaBuilder.conjunction(); // Trả về tất cả nếu không lọc
             }
-            // Kết hợp tất cả các điều kiện lọc bằng toán tử AND
-            return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+
+            // QUAN TRỌNG: Đổi 'or' thành 'and'
+            // Logic bộ lọc phải là: Tên là A VÀ Email là B (chứ không phải hoặc)
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
+//    private Specification<User> buildUserSpecification(UserSearchRequest request) {
+//        return (root, query, criteriaBuilder) -> {
+//            List<Predicate> predicates = new ArrayList<>();
+//
+//            // 1. Lọc theo userID (Tìm kiếm chính xác)
+//            if (request.getUserID() != null && !request.getUserID().isEmpty()) {
+//                predicates.add(criteriaBuilder.equal(root.get("userID"), request.getUserID()));
+//            }
+//
+//            // 2. Lọc theo email (Tìm kiếm tương đối - LIKE)
+//            if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+//                // Sẽ tìm các email có chứa chuỗi tìm kiếm
+//                predicates.add(criteriaBuilder.like(root.get("email"), "%" + request.getEmail() + "%"));
+//            }
+//
+//            // 3. Lọc theo fullName (Tìm kiếm tương đối - LIKE)
+//            if (request.getFullName() != null && !request.getFullName().isEmpty()) {
+//                // Sẽ tìm các tên có chứa chuỗi tìm kiếm
+//                predicates.add(criteriaBuilder.like(root.get("fullName"), "%" + request.getFullName() + "%"));
+//            }
+//
+//            // 4. Lọc theo gender (Tìm kiếm chính xác)
+//            if (request.getGender() != null && !request.getGender().isEmpty()) {
+//                predicates.add(criteriaBuilder.equal(root.get("gender"), request.getGender()));
+//            }
+//
+//            // 5. Lọc theo phone (Tìm kiếm chính xác)
+//            if (request.getPhone() != null && !request.getPhone().isEmpty()) {
+//                predicates.add(criteriaBuilder.equal(root.get("phone"), request.getPhone()));
+//            }
+//
+//            // 6. Lọc theo roleId (Sử dụng JOIN, giả định Entity User có trường 'role' là quan hệ)
+//            if (request.getRoleId() != null && !request.getRoleId().isEmpty()) {
+//                // Giả định: Trường "role" trong Entity User là một quan hệ đến Entity Role
+//                predicates.add(criteriaBuilder.equal(root.get("role").get("roleName"), request.getRoleId()));
+//            }
+//
+//            List<Predicate> birthDatePredicates = new ArrayList<>();
+//
+//            // Điều kiện BẮT ĐẦU (birthDateFrom)
+//            if (request.getBirthDateFrom() != null) {
+//                birthDatePredicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("birthDate"), request.getBirthDateFrom()));
+//            }
+//
+//            // Điều kiện KẾT THÚC (birthDateTo)
+//            if (request.getBirthDateTo() != null) {
+//                birthDatePredicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("birthDate"), request.getBirthDateTo()));
+//            }
+//
+//            // Nếu có điều kiện về Ngày Sinh, tạo một Predicate kết hợp bằng AND
+//            if (!birthDatePredicates.isEmpty()) {
+//                // Predicate này = (birthDate >= From AND birthDate <= To)
+//                predicates.add(criteriaBuilder.and(birthDatePredicates.toArray(new Predicate[0])));
+//            }
+//
+//            List<Predicate> createdAtPredicates = new ArrayList<>();
+//
+//            // Điều kiện BẮT ĐẦU (createdAtFrom)
+//            if (request.getCreatedAtFrom() != null) {
+//                createdAtPredicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), request.getCreatedAtFrom()));
+//            }
+//
+//            // Điều kiện KẾT THÚC (createdAtTo)
+//            if (request.getCreatedAtTo() != null) {
+//                createdAtPredicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), request.getCreatedAtTo()));
+//            }
+//
+//            // Nếu có điều kiện về Ngày Tạo, tạo một Predicate kết hợp bằng AND
+//            if (!createdAtPredicates.isEmpty()) {
+//                // Predicate này = (createdAt >= From AND createdAt <= To)
+//                predicates.add(criteriaBuilder.and(createdAtPredicates.toArray(new Predicate[0])));
+//            }
+//
+//            if (predicates.isEmpty()) {
+//                // Trả về một điều kiện 'luôn đúng' (truy vấn không có mệnh đề WHERE),
+//                // có nghĩa là trả về tất cả người dùng.
+//                return criteriaBuilder.conjunction();
+//            }
+//            // Kết hợp tất cả các điều kiện lọc bằng toán tử AND
+//            return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+//        };
+//    }
 
     public UserResponse updateProfile(String userId, ProfileUpdateRequest request) {
         // 1. Tìm User
@@ -327,10 +414,13 @@ public class UserService {
 
         // 2. Cập nhật các trường chung (Nằm ở bảng Users)
         user.setFullName(request.getFullName());
-        user.setPhone(request.getPhone());
+        user.setPhones(new HashSet<>(Collections.singleton(request.getPhone())));
         user.setGender(request.getGender());
         user.setBirthDate(request.getBirthDate());
-        // 4. Lưu và trả về
+
+        User savedUser = userRepository.save(user);
+        UserResponse userResponse = userMapper.toUserResponse(savedUser);
+        socketIOServer.getBroadcastOperations().sendEvent("UPDATE_USER_SUCCESS", userResponse);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

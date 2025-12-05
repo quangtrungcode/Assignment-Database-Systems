@@ -8,13 +8,10 @@ import com.example.demo.entity.Course;
 import com.example.demo.entity.Lecturer;
 import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.Set;
-
+//,nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 

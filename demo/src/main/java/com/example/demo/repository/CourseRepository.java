@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CourseRepository extends JpaRepository<Course, String> {
 
-    List<Course> findByLecturer_UserID(String lecturerId);
+   // List<Course> findByLecturer_UserID(String lecturerId);
 
     @Query(value = "SELECT NEXT VALUE FOR Seq_Course", nativeQuery = true)
     Long getNextCourseIdSequence();

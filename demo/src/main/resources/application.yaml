@@ -5,7 +5,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: jdbc:sqlserver://DESKTOP-KR6P5K8\SQLEXPRESS:1433;databaseName=ELEARNING;encrypt=true;trustServerCertificate=true
+    url: jdbc:sqlserver://DESKTOP-KR6P5K8\SQLEXPRESS:1433;databaseName=CourseManagementDB;encrypt=true;trustServerCertificate=true
     username: sManager
     password: 123456
 

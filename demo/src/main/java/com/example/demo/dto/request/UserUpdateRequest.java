@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -16,14 +17,17 @@ import java.util.Date;
 public class UserUpdateRequest {
     @Size(min = 8,message = "INVALID_PASSWORD")
     String passwordHash;
-    @NotBlank(message = "EMAIL_REQUIRED")
+
+
     @Email(message = "INVALID_EMAIL_FORMAT")
     String email;
-    @NotBlank(message = "FULL_NAME_REQUIRED")
+
+
     @Size(min = 8,message = "INVALID_FULL_NAME")
     String fullName;
+
     String gender;
-    String phone;
+    Set<String> phones;
     Date birthDate;
     String role;
     String career;

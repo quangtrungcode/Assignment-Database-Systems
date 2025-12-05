@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.request.RoleRequest;
 import com.example.demo.dto.request.RoleUpdateRequest;
 import com.example.demo.dto.response.RoleResponse;
+import com.example.demo.entity.Role;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.RoleMapper;
@@ -30,11 +31,11 @@ public class RoleService {
     @Transactional
     public RoleResponse create(RoleRequest request){
         var permissions = permissionRepository.findAllById(request.getPermissions());
-        if(permissions.isEmpty())
-            throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
-        if(roleRepository.existsByName(request.getName())) {
-            throw new AppException(ErrorCode.ROLE_EXISTED);
-        }
+//        if(permissions.isEmpty())
+//            throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
+//        if(roleRepository.existsByRoleName(request.getName())) {
+//            throw new AppException(ErrorCode.ROLE_EXISTED);
+//        }
         var role = roleMapper.toRole(request);
         role.setPermissions(new HashSet<>(permissions));
        // role = roleRepository.save(role);
@@ -44,10 +45,16 @@ public class RoleService {
 
     public RoleResponse updateRole(RoleUpdateRequest roleUpdateRequest){
         var permissions = permissionRepository.findAllById(roleUpdateRequest.getPermissions());
-        if(permissions.isEmpty())
-            throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
-        var role = roleMapper.toRoleUpdate(roleUpdateRequest);
+//        if(permissions.isEmpty())
+//            throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
+        var role= roleRepository.findById(roleUpdateRequest.getRoleName()).orElseThrow(()->new AppException(ErrorCode.ROLE_NOT_FOUND));
+
         role.setPermissions(new HashSet<>(permissions));
+        role = roleMapper.toRoleUpdate(roleUpdateRequest);
+
+     //  role.setPermissions(new HashSet<>(permissions));
+       // role.setPermissions(new HashSet<>(roleUpdateRequest.getPermissions()));
+
       //  role.setDescription(role.getName());
         // role = roleRepository.save(role);
         return roleMapper.toRoleResponse(roleRepository.save(role));

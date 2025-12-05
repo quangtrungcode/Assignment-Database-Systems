@@ -6,6 +6,7 @@ import com.example.demo.dto.request.UserUpdateRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.PermissionResponse;
 import com.example.demo.service.PermissionService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +24,7 @@ public class PermissionController {
     PermissionService permissionService;
 
     @PostMapping
-    ApiResponse<PermissionResponse> create(@RequestBody PermissionRequest request){
+    ApiResponse<PermissionResponse> create(@RequestBody @Valid PermissionRequest request){
         return ApiResponse.<PermissionResponse>builder()
                 .result(permissionService.create(request))
                 .build();

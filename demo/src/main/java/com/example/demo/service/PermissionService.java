@@ -26,7 +26,7 @@ public class PermissionService {
     PermissionMapper permissionMapper;
 
     public PermissionResponse create(PermissionRequest request){
-        if(permissionRepository.existsByName(request.getName())) {
+        if(permissionRepository.existsByPermissionName(request.getPermissionName())) {
             throw new AppException(ErrorCode.PERMISSION_EXISTED);
         }
         Permission permission = permissionMapper.toPermission(request);
@@ -51,6 +51,7 @@ public class PermissionService {
     }
 
     public void delete(String permission){
+        if(permissionRepository.findById(permission).isEmpty()) throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
         permissionRepository.deleteById(permission);
     }
 }

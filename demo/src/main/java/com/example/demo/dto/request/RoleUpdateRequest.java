@@ -11,6 +11,8 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleUpdateRequest {
-    String name;
+    String roleName;
+    String description;
+    String level;
     Set<String> permissions;
 }
