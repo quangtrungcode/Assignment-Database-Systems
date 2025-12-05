@@ -191,10 +191,7 @@ api.interceptors.request.use(
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
-      // console.log('Authorization header set:', config.headers['Authorization']);
-    } else {
-      // console.log('No authToken found in localStorage.');
-    }
+    } 
     return config;
   },
   (error) => {
@@ -205,7 +202,6 @@ api.interceptors.request.use(
 // Interceptor: Log response hoặc xử lý lỗi token
 api.interceptors.response.use(
   (response) => {
-    // console.log('API Response (Success):', response);
     return response;
   },
   (error) => {
@@ -224,6 +220,12 @@ export const authAPI = {
   login: (fullName, password) => {
     return api.post('/identity/auth/token', { fullName, passwordHash: password });
   },
+  
+  // 👇 ĐÃ THÊM HÀM NÀY ĐỂ SỬA LỖI
+  register: (userData) => {
+    // Gọi đến API tạo user mới
+    return api.post('/identity/users', userData);
+  },
 };
 
 // API cho các chức năng liên quan đến người dùng
@@ -241,7 +243,7 @@ export const userAPI = {
   update: (userId, userData) => {
     return api.put(`/identity/users/${userId}`, userData);
   },
-  // 👇 API MỚI: Cập nhật hồ sơ dành cho STUDENT (chỉ sửa thông tin cá nhân)
+  // API cập nhật hồ sơ dành cho STUDENT
   updateProfile: (userId, userData) => {
     return api.put(`/identity/users/${userId}/profile`, userData);
   },
@@ -298,24 +300,18 @@ export const courseAPI = {
   update: (courseId, courseData) => {
     return api.put(`/identity/courses/${courseId}`, courseData);
   },
-  // 👇 THÊM API XÓA
   delete: (courseId) => {
     return api.delete(`/identity/courses/${courseId}`);
   },
-
   enroll: (courseId) => {
-    // API này không cần body vì Student ID được lấy từ token
     return api.post(`/identity/courses/${courseId}/enroll`, {}); 
   },
-
   unenroll: (courseId) => {
-        return api.delete(`/identity/courses/${courseId}/unenroll`);
-    },
-
+      return api.delete(`/identity/courses/${courseId}/unenroll`);
+  },
   getMyEnrollments: () => {
     return api.get('/identity/courses/my-enrollments');
   }
-  // Nếu cần xóa/sửa thì thêm sau
 };
 
 export default api;

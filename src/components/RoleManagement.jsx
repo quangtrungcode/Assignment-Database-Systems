@@ -73,6 +73,7 @@ const RoleManagement = () => {
           <tr>
             <th>Tên vai trò</th>
             <th>Mô tả</th>
+            <th>Level</th> {/* Đã thêm cột Level vào header */}
             <th>Quyền</th>
             <th>Hành động</th>
           </tr>
@@ -83,6 +84,7 @@ const RoleManagement = () => {
               <tr key={role.id}>
                 <td>{role.name}</td>
                 <td>{role.description}</td>
+                <td>{role.level}</td> {/* Dữ liệu Level hiển thị ở đây */}
                 <td>
                   <ul className="permissions-list-inline">
                     {role.permissions?.map(p => <li key={p.id}>{p.name}</li>)}
@@ -96,7 +98,8 @@ const RoleManagement = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="4">Không có vai trò nào.</td>
+              {/* Cập nhật colSpan thành 5 để khớp với số lượng cột mới */}
+              <td colSpan="5">Không có vai trò nào.</td>
             </tr>
           )}
         </tbody>

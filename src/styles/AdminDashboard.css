@@ -1,139 +1,128 @@
-/* AdminDashboard.css */
+.admin-dashboard {
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa; /* Màu nền sáng nhẹ */
+  min-height: 100%;
+}
 
-/* Container chính của lưới thẻ */
-.dashboard-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Chia 3 cột đều nhau */
-  gap: 30px; /* Khoảng cách giữa các thẻ rộng hơn chút cho thoáng */
+.dashboard-header {
   margin-bottom: 30px;
 }
 
-/* --- STYLE CHO TỪNG CARD --- */
+.dashboard-header h1 {
+  font-size: 28px;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+.current-date {
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+/* --- GRID LAYOUT CHO CÁC THẺ --- */
+.stats-grid {
+  display: grid;
+  /* Tự động chia cột: tối thiểu 240px, nếu màn hình rộng thì chia đều */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
 .stat-card {
-  background-color: #ffffff !important; /* 👈 QUAN TRỌNG: Nền trắng tuyệt đối */
-  border-radius: 15px; /* Bo góc tròn trịa hiện đại */
-  padding: 25px;
-  display: flex;
-  align-items: center; /* Căn giữa theo chiều dọc */
-  text-decoration: none; /* Bỏ gạch chân */
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  text-decoration: none;
   color: inherit;
-  
-  /* Hiệu ứng nổi khối */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   border: 1px solid rgba(0,0,0,0.05);
-  
-  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
-/* Hiệu ứng khi di chuột: Nổi lên và sáng hơn */
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
 
-/* --- PHẦN ICON --- */
-.card-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
+.card-inner {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  margin-right: 20px;
-  flex-shrink: 0;
-}
-
-/* --- PHẦN CHỮ --- */
-.card-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  z-index: 1;
+  position: relative;
 }
 
 .card-info h3 {
-  margin: 0 0 5px 0;
-  color: #8898aa; /* Màu xám nhạt sang trọng cho tiêu đề */
   font-size: 14px;
-  font-weight: 700;
+  color: #7f8c8d;
+  margin-bottom: 10px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
-.card-info .stat-number {
+.card-info h2 {
+  font-size: 32px;
+  font-weight: 700;
   margin: 0;
-  font-size: 36px; /* Số to rõ ràng */
-  font-weight: 800;
-  color: #32325d; /* Màu chữ đậm dễ đọc */
-  line-height: 1.2;
+  color: #2c3e50;
 }
 
-/* --- MÀU SẮC THEME RIÊNG --- */
-
-/* 1. Users (Xanh dương) */
-.user-card .card-icon {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-  color: #1976d2;
+.card-icon {
+  font-size: 40px;
+  opacity: 0.8;
 }
-.user-card:hover { border-bottom: 4px solid #1976d2; }
 
-/* 2. Roles (Xanh lá) */
-.role-card .card-icon {
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-  color: #388e3c;
+/* --- MÀU SẮC RIÊNG CHO TỪNG LOẠI THẺ (Border trái + Màu Icon) --- */
+
+/* Giảng viên: Tím */
+.card-lecturer { border-left: 4px solid #9b59b6; }
+.card-lecturer .card-icon { color: #9b59b6; background: rgba(155, 89, 182, 0.1); padding: 10px; border-radius: 50%; }
+
+/* Sinh viên: Xanh dương */
+.card-student { border-left: 4px solid #3498db; }
+.card-student .card-icon { color: #3498db; background: rgba(52, 152, 219, 0.1); padding: 10px; border-radius: 50%; }
+
+/* Khóa học: Xanh lá (Emerald) */
+.card-course { border-left: 4px solid #2ecc71; }
+.card-course .card-icon { color: #2ecc71; background: rgba(46, 204, 113, 0.1); padding: 10px; border-radius: 50%; }
+
+/* Vai trò: Cam */
+.card-role { border-left: 4px solid #e67e22; }
+.card-role .card-icon { color: #e67e22; background: rgba(230, 126, 34, 0.1); padding: 10px; border-radius: 50%; }
+
+/* Quyền hạn: Đỏ */
+.card-permission { border-left: 4px solid #e74c3c; }
+.card-permission .card-icon { color: #e74c3c; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 50%; }
+
+
+/* --- WELCOME SECTION --- */
+.welcome-section {
+  margin-top: 20px;
 }
-.role-card:hover { border-bottom: 4px solid #388e3c; }
 
-/* 3. Permissions (Vàng cam) */
-.permission-card .card-icon {
-  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
-  color: #ffa000;
-}
-.permission-card:hover { border-bottom: 4px solid #ffa000; }
-
-
-/* --- WELCOME CARD (Thẻ chào mừng ở dưới) --- */
-.welcome-card {
-  background-color: #ffffff !important;
-  border-radius: 15px;
+.welcome-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradient tím xanh */
+  border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  border-left: 6px solid #667eea; /* Viền trái màu tím chủ đạo */
+  color: white;
+  box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.welcome-card h2 {
-  color: #5e72e4;
-  margin-top: 0;
+.welcome-text h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
 }
 
-.welcome-card p {
-  color: #525f7f;
+.welcome-text p {
   font-size: 16px;
-  line-height: 1.6;
-}
-
-/* --- RESPONSIVE --- */
-@media (max-width: 992px) {
-  .dashboard-cards-grid {
-    grid-template-columns: repeat(2, 1fr); /* Tablet: 2 cột */
-  }
-}
-
-@media (max-width: 600px) {
-  .dashboard-cards-grid {
-    grid-template-columns: 1fr; /* Mobile: 1 cột */
-  }
-  .stat-card {
-    padding: 20px;
-  }
-}
-
-.course-card { 
-    border-left: 5px solid #00bcd4; /* Viền trái màu Cyan */
-}
-.course-card .card-icon {
-    background-color: #e0f7fa; /* Nền nhạt */
-    color: #00bcd4; /* Icon đậm */
+  opacity: 0.9;
+  line-height: 1.5;
+  max-width: 600px;
 }

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { FaExclamationTriangle } from 'react-icons/fa'; // Import icon
 import '../styles/Toast.css';
 
-function Toast({ message, type = 'error', duration = 5000, onClose }) {
+function Toast({ message, type = 'error', duration = 3000, onClose }) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {

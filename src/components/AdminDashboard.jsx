@@ -95,24 +95,139 @@
 // };
 
 // export default AdminDashboard;
-import React, { useState, useEffect, useCallback } from 'react'; // 👈 Thêm useCallback
-import '../styles/Dashboard.css';
-import '../styles/AdminDashboard.css';
-import { userAPI, permissionAPI, roleAPI, courseAPI } from '../services/apiService'; // Thêm courseAPI
-import { Link } from 'react-router-dom';
-import { FaUsers, FaUserShield, FaClipboardList, FaBook } from 'react-icons/fa';
+// import React, { useState, useEffect, useCallback } from 'react'; // 👈 Thêm useCallback
+// import '../styles/Dashboard.css';
+// import '../styles/AdminDashboard.css';
+// import { userAPI, permissionAPI, roleAPI, courseAPI } from '../services/apiService'; // Thêm courseAPI
+// import { Link } from 'react-router-dom';
+// import { FaUsers, FaUserShield, FaClipboardList, FaBook } from 'react-icons/fa';
 
-// Sử dụng React.memo để ngăn component re-render nếu props không đổi (tối ưu hiệu suất)
-const AdminDashboard = React.memo(() => { 
-  const [users, setUsers] = useState([]);
-  const [roles, setRoles] = useState([]);
-  const [allPermissions, setAllPermissions] = useState([]);
-  const [courses, setCourses] = useState([]);
+// // Sử dụng React.memo để ngăn component re-render nếu props không đổi (tối ưu hiệu suất)
+// const AdminDashboard = React.memo(() => { 
+//   const [users, setUsers] = useState([]);
+//   const [roles, setRoles] = useState([]);
+//   const [allPermissions, setAllPermissions] = useState([]);
+//   const [courses, setCourses] = useState([]);
   
-  // 👇 HÀM GỘP 4 API VÀ CHẠY SONG SONG
+//   // 👇 HÀM GỘP 4 API VÀ CHẠY SONG SONG
+//   const fetchAllStats = useCallback(async () => {
+//     try {
+//         // Chạy tất cả các API cùng một lúc
+//         const [usersRes, rolesRes, permissionsRes, coursesRes] = await Promise.all([
+//             userAPI.getAllUsers(),
+//             roleAPI.getAll(),
+//             permissionAPI.getAll(),
+//             courseAPI.getAll()
+//         ]);
+
+//         // 1. Xử lý và trích xuất dữ liệu
+//         const userData = usersRes.data?.result || usersRes.data || [];
+//         const rolesData = rolesRes.data?.result || rolesRes.data || [];
+//         const permsData = permissionsRes.data?.result || permissionsRes.data || [];
+//         const coursesData = coursesRes.data?.result || coursesRes.data || [];
+        
+//         // 2. Cập nhật tất cả State MỘT LẦN DUY NHẤT
+//         setUsers(userData);
+//         setRoles(rolesData);
+//         setAllPermissions(permsData);
+//         setCourses(coursesData);
+
+//     } catch (error) {
+//         // Chỉ log lỗi thay vì crash ứng dụng nếu một API thất bại
+//         console.error("Lỗi tải toàn bộ số liệu thống kê:", error);
+//     }
+//   }, []); // Hàm này không có dependency nên chạy 1 lần
+
+//   // 👇 GỌI HÀM KHI COMPONENT MOUNT
+//   useEffect(() => {
+//     fetchAllStats();
+//   }, [fetchAllStats]);
+
+//   return (
+//     <div className="dashboard-container">
+//       <div className="dashboard-header">
+//         <h1>Tổng quan quản trị</h1>
+//       </div>
+      
+//       <div className="dashboard-content">
+        
+//         {/* 👇 Bổ sung Style để đảm bảo 4 cột nằm ngang hàng nhau */}
+//         <div className="dashboard-cards-grid" style={{gridTemplateColumns: 'repeat(4, 1fr)'}}>
+          
+//           {/* Card Users */}
+//           <Link to="/admin/users" className="stat-card user-card">
+//             <div className="card-icon">
+//               <FaUsers />
+//             </div>
+//             <div className="card-info">
+//               <h3>Người dùng</h3>
+//               <p className="stat-number">{users.length-1}</p>
+//             </div>
+//           </Link>
+          
+//           {/* Card Courses */}
+//           <Link to="/admin/courses" className="stat-card course-card">
+//             <div className="card-icon">
+//               <FaBook />
+//             </div>
+//             <div className="card-info">
+//               <h3>Khóa học</h3>
+//               <p className="stat-number">{courses.length}</p>
+//             </div>
+//           </Link>
+
+//           {/* Card Roles */}
+//           <Link to="/admin/roles" className="stat-card role-card">
+//             <div className="card-icon">
+//               <FaUserShield />
+//             </div>
+//             <div className="card-info">
+//               <h3>Vai trò</h3>
+//               <p className="stat-number">{roles.length}</p>
+//             </div>
+//           </Link>
+
+//           {/* Card Permissions (Cột thứ 4) */}
+//           <Link to="/admin/permissions" className="stat-card permission-card">
+//             <div className="card-icon">
+//               <FaClipboardList />
+//             </div>
+//             <div className="card-info">
+//               <h3>Quyền hạn</h3>
+//               <p className="stat-number">{allPermissions.length}</p>
+//             </div>
+//           </Link>
+
+//         </div>
+
+//         <div className="dashboard-card welcome-card">
+//           <h2>Chào mừng đến với trang quản trị!</h2>
+//           <p>Sử dụng thanh điều hướng bên trái để truy cập các chức năng quản lý, theo dõi số liệu thống kê và quản lý hệ thống hiệu quả.</p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }); // 👈 Kết thúc với React.memo
+
+// export default AdminDashboard;
+
+
+import React, { useState, useEffect, useCallback } from 'react';
+import '../styles/Dashboard.css';
+import '../styles/AdminDashboard.css'; // File CSS mới
+import { userAPI, permissionAPI, roleAPI, courseAPI } from '../services/apiService';
+import { Link } from 'react-router-dom';
+import { FaUserShield, FaClipboardList, FaBook, FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
+
+const AdminDashboard = React.memo(() => { 
+  const [studentCount, setStudentCount] = useState(0);
+  const [lecturerCount, setLecturerCount] = useState(0);
+  const [rolesCount, setRolesCount] = useState(0);
+  const [permissionsCount, setPermissionsCount] = useState(0);
+  const [coursesCount, setCoursesCount] = useState(0);
+  
   const fetchAllStats = useCallback(async () => {
     try {
-        // Chạy tất cả các API cùng một lúc
         const [usersRes, rolesRes, permissionsRes, coursesRes] = await Promise.all([
             userAPI.getAllUsers(),
             roleAPI.getAll(),
@@ -120,93 +235,118 @@ const AdminDashboard = React.memo(() => {
             courseAPI.getAll()
         ]);
 
-        // 1. Xử lý và trích xuất dữ liệu
         const userData = usersRes.data?.result || usersRes.data || [];
+        
+        // Đếm số lượng
+        const students = userData.filter(u => (u.role?.roleName || u.role?.name || '').toLowerCase() === 'student').length;
+        const lecturers = userData.filter(u => (u.role?.roleName || u.role?.name || '').toLowerCase() === 'lecturer').length;
+
+        setStudentCount(students);
+        setLecturerCount(lecturers);
+
         const rolesData = rolesRes.data?.result || rolesRes.data || [];
         const permsData = permissionsRes.data?.result || permissionsRes.data || [];
         const coursesData = coursesRes.data?.result || coursesRes.data || [];
         
-        // 2. Cập nhật tất cả State MỘT LẦN DUY NHẤT
-        setUsers(userData);
-        setRoles(rolesData);
-        setAllPermissions(permsData);
-        setCourses(coursesData);
+        setRolesCount(rolesData.length);
+        setPermissionsCount(permsData.length);
+        setCoursesCount(coursesData.length);
 
     } catch (error) {
-        // Chỉ log lỗi thay vì crash ứng dụng nếu một API thất bại
-        console.error("Lỗi tải toàn bộ số liệu thống kê:", error);
+        console.error("Lỗi tải thống kê:", error);
     }
-  }, []); // Hàm này không có dependency nên chạy 1 lần
+  }, []);
 
-  // 👇 GỌI HÀM KHI COMPONENT MOUNT
   useEffect(() => {
     fetchAllStats();
   }, [fetchAllStats]);
 
   return (
-    <div className="dashboard-container">
+    <div className="admin-dashboard">
       <div className="dashboard-header">
-        <h1>Tổng quan quản trị</h1>
+        <h1>Tổng Quan Quản Trị</h1>
+        <p className="current-date">{new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </div>
       
-      <div className="dashboard-content">
+      {/* KHU VỰC THẺ THỐNG KÊ (Hàng ngang) */}
+      <div className="stats-grid">
         
-        {/* 👇 Bổ sung Style để đảm bảo 4 cột nằm ngang hàng nhau */}
-        <div className="dashboard-cards-grid" style={{gridTemplateColumns: 'repeat(4, 1fr)'}}>
-          
-          {/* Card Users */}
-          <Link to="/admin/users" className="stat-card user-card">
-            <div className="card-icon">
-              <FaUsers />
-            </div>
+        <Link to="/admin/users" className="stat-card card-lecturer">
+          <div className="card-inner">
             <div className="card-info">
-              <h3>Người dùng</h3>
-              <p className="stat-number">{users.length}</p>
+              <h3>Giảng viên</h3>
+              <h2>{lecturerCount}</h2>
             </div>
-          </Link>
-          
-          {/* Card Courses */}
-          <Link to="/admin/courses" className="stat-card course-card">
+            <div className="card-icon">
+              <FaChalkboardTeacher />
+            </div>
+          </div>
+        </Link>
+
+        <Link to="/admin/users" className="stat-card card-student">
+          <div className="card-inner">
+            <div className="card-info">
+              <h3>Sinh viên</h3>
+              <h2>{studentCount}</h2>
+            </div>
+            <div className="card-icon">
+              <FaUserGraduate />
+            </div>
+          </div>
+        </Link>
+        
+        <Link to="/admin/courses" className="stat-card card-course">
+          <div className="card-inner">
+            <div className="card-info">
+              <h3>Khóa học</h3>
+              <h2>{coursesCount}</h2>
+            </div>
             <div className="card-icon">
               <FaBook />
             </div>
-            <div className="card-info">
-              <h3>Khóa học</h3>
-              <p className="stat-number">{courses.length}</p>
-            </div>
-          </Link>
+          </div>
+        </Link>
 
-          {/* Card Roles */}
-          <Link to="/admin/roles" className="stat-card role-card">
+        <Link to="/admin/roles" className="stat-card card-role">
+          <div className="card-inner">
+            <div className="card-info">
+              <h3>Vai trò</h3>
+              <h2>{rolesCount}</h2>
+            </div>
             <div className="card-icon">
               <FaUserShield />
             </div>
-            <div className="card-info">
-              <h3>Vai trò</h3>
-              <p className="stat-number">{roles.length}</p>
-            </div>
-          </Link>
+          </div>
+        </Link>
 
-          {/* Card Permissions (Cột thứ 4) */}
-          <Link to="/admin/permissions" className="stat-card permission-card">
+        <Link to="/admin/permissions" className="stat-card card-permission">
+          <div className="card-inner">
+            <div className="card-info">
+              <h3>Quyền hạn</h3>
+              <h2>{permissionsCount}</h2>
+            </div>
             <div className="card-icon">
               <FaClipboardList />
             </div>
-            <div className="card-info">
-              <h3>Quyền hạn</h3>
-              <p className="stat-number">{allPermissions.length}</p>
-            </div>
-          </Link>
+          </div>
+        </Link>
 
-        </div>
+      </div>
 
-        <div className="dashboard-card welcome-card">
-          <h2>Chào mừng đến với trang quản trị!</h2>
-          <p>Sử dụng thanh điều hướng bên trái để truy cập các chức năng quản lý, theo dõi số liệu thống kê và quản lý hệ thống hiệu quả.</p>
+      {/* KHU VỰC CHÀO MỪNG (Nằm dưới) */}
+      <div className="welcome-section">
+        <div className="welcome-banner">
+          <div className="welcome-text">
+            <h2>Chào mừng trở lại! 👋</h2>
+            <p>Hệ thống đang hoạt động ổn định. Bạn có thể quản lý người dùng, khóa học và phân quyền từ thanh menu bên trái.</p>
+          </div>
+          <div className="welcome-image">
+            {/* Bạn có thể thêm hình minh họa SVG ở đây nếu muốn */}
+          </div>
         </div>
       </div>
     </div>
   );
-}); // 👈 Kết thúc với React.memo
+});
 
 export default AdminDashboard;

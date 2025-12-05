@@ -23,7 +23,7 @@ const UpdateCourseModal = ({ course, onClose, onCourseUpdated }) => {
       try {
         const res = await userAPI.getAllUsers();
         const allUsers = res.data?.result || res.data || [];
-        const list = allUsers.filter(u => u.role?.name === 'lecturer' || u.role?.name === 'lecturers');
+        const list = allUsers.filter(u => u.role?.name === 'Lecturer' || u.role?.name === 'lecturers');
         setLecturers(list);
       } catch (err) {
         console.error("Lỗi lấy danh sách GV:", err);

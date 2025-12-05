@@ -111,7 +111,7 @@
   text-align: right;
 }
 
-.role-badge {
+/* .role-badge {
   display: inline-block;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -119,6 +119,39 @@
   border-radius: 20px;
   font-size: 12px;
   font-weight: bold;
+} */
+/* CSS cơ bản cho badge (giữ nguyên cái cũ của bạn để có độ bo tròn, padding) */
+
+
+.role-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500; /* Giảm độ dày chữ một chút vì nền đậm đã làm nổi rồi */
+  line-height: 1;
+  text-transform: capitalize;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Thêm bóng nhẹ */
+  color: #ffffff; /* Chữ luôn màu trắng */
+}
+
+/* STUDENT: Xanh lá đậm */
+.badge-student {
+  background-color: #10b981; /* Emerald 500 */
+  border: 1px solid #059669;
+}
+
+/* LECTURER: Xanh tím đậm */
+.badge-lecturer {
+  background-color: #6366f1; /* Indigo 500 */
+  border: 1px solid #4f46e5;
+}
+/* Màu mặc định cho các role khác */
+.badge-default {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
 }
 
 .success-message {

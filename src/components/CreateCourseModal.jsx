@@ -22,7 +22,7 @@ const CreateCourseModal = ({ onClose, onCourseCreated }) => {
         const res = await userAPI.getAllUsers();
         // Lọc lấy những người có role là 'lecturer' hoặc 'lecturers'
         const allUsers = res.data?.result || res.data || [];
-        const list = allUsers.filter(u => u.role?.name === 'lecturer' || u.role?.name === 'lecturers');
+        const list = allUsers.filter(u => u.role?.name === 'Lecturer' || u.role?.name === 'Lecturers');
         setLecturers(list);
         
         // Chọn mặc định người đầu tiên nếu có
