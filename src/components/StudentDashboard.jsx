@@ -1139,12 +1139,23 @@ function StudentDashboard({ user, onLogout, onRefresh }) {
          }
       }
     });
+socket.on("UPDATE_ROLE_SUCCESS", (updatedRoleName) => {
+        console.log("⚡ Role vừa được update cấu hình:", updatedRoleName);
 
+        // Kiểm tra an toàn: Đảm bảo user.role tồn tại trước khi so sánh
+        const myRoleName = user.role?.name || user.role?.roleName; 
+
+        // SO SÁNH: Role vừa bị sửa có phải là Role của tôi không?
+        if (myRoleName === updatedRoleName) {
+             console.log(`=> Tôi đang là ${myRoleName}, quyền của tôi đã thay đổi -> Refresh!`);
+             if (onRefresh) onRefresh();
+        }
+    });
     // Dọn dẹp kết nối khi thoát trang
     return () => {
       socket.disconnect();
     };
-  }, [user.userID, onRefresh]); 
+  }, [user.userID, user.role, onRefresh]); 
   // --- 👆 KẾT THÚC PHẦN SOCKET 👆 ---
 
   const getRoleText = (roleName) => {

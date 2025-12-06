@@ -642,7 +642,70 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated }) => {
     return false;
   };
 
-  const handleSubmit = async () => {
+  // const handleSubmit = async () => {
+  //   setLoading(true);
+    
+  //   try {
+  //     // Hàm helper: Chuyển rỗng thành null
+  //     const processValue = (val) => (!val || String(val).trim() === '') ? null : String(val).trim();
+
+  //     const changes = {};
+  //     let hasChange = false; // Cờ kiểm tra xem có trường nào khác thay đổi không
+
+  //     // 1. So sánh Mô tả
+  //     if (description !== originalData.description) {
+  //       changes.description = processValue(description);
+  //       hasChange = true;
+  //     }
+
+  //     // 2. So sánh Level
+  //     const currentLevel = parseInt(level, 10);
+  //     const originalLevel = parseInt(originalData.level, 10);
+  //     if (currentLevel !== originalLevel) {
+  //       changes.level = currentLevel;
+  //       hasChange = true;
+  //     }
+
+  //     // 3. So sánh Quyền
+  //     if (arePermissionsChanged(selectedPermissionsSet, originalData.permissionsSet)) {
+  //       const permissionsToSubmit = Array.from(selectedPermissionsSet).map(uniqueKey => {
+  //         const found = processedPermissions.find(p => p.uniqueKey === uniqueKey);
+  //         return found ? found.originalName : uniqueKey;
+  //       });
+  //       changes.permissions = permissionsToSubmit;
+  //       hasChange = true;
+  //     }
+
+  //     // 4. Nếu không có gì thay đổi (ngoài cái tên luôn giống nhau), thông báo user
+  //     if (!hasChange) {
+  //       message.info('Không có thông tin nào thay đổi.');
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     // 5. TẠO PAYLOAD
+  //     const payload = { 
+  //       id: role.id,
+  //       roleName: name, // 👇 LUÔN GỬI TRƯỜNG NÀY (theo yêu cầu của bạn)
+  //       ...changes      // Gộp các trường thay đổi vào
+  //     };
+
+  //     console.log('Update Role Payload:', payload);
+
+  //     await roleAPI.update(payload);
+      
+  //     message.success('Cập nhật vai trò thành công!');
+  //     onRoleUpdated(); 
+
+  //   } catch (err) {
+  //     console.error(err);
+  //     const msg = err.response?.data?.message || 'Cập nhật thất bại.';
+  //     message.error(msg);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+const handleSubmit = async () => {
     setLoading(true);
     
     try {
@@ -650,23 +713,9 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated }) => {
       const processValue = (val) => (!val || String(val).trim() === '') ? null : String(val).trim();
 
       const changes = {};
-      let hasChange = false; // Cờ kiểm tra xem có trường nào khác thay đổi không
+      let hasChange = false;
 
-      // 1. So sánh Mô tả
-      if (description !== originalData.description) {
-        changes.description = processValue(description);
-        hasChange = true;
-      }
-
-      // 2. So sánh Level
-      const currentLevel = parseInt(level, 10);
-      const originalLevel = parseInt(originalData.level, 10);
-      if (currentLevel !== originalLevel) {
-        changes.level = currentLevel;
-        hasChange = true;
-      }
-
-      // 3. So sánh Quyền
+      // 1. So sánh Quyền (Logic này giữ nguyên vì quyền là mảng phức tạp)
       if (arePermissionsChanged(selectedPermissionsSet, originalData.permissionsSet)) {
         const permissionsToSubmit = Array.from(selectedPermissionsSet).map(uniqueKey => {
           const found = processedPermissions.find(p => p.uniqueKey === uniqueKey);
@@ -676,18 +725,27 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated }) => {
         hasChange = true;
       }
 
-      // 4. Nếu không có gì thay đổi (ngoài cái tên luôn giống nhau), thông báo user
+      // Kiểm tra xem các trường khác có thay đổi không để bật cờ hasChange
+      if (description !== originalData.description || parseInt(level, 10) !== parseInt(originalData.level, 10)) {
+          hasChange = true;
+      }
+
+      // 2. Nếu không có gì thay đổi
       if (!hasChange) {
         message.info('Không có thông tin nào thay đổi.');
         setLoading(false);
         return;
       }
 
-      // 5. TẠO PAYLOAD
+      // 3. TẠO PAYLOAD
+      // ⚠️ SỬA QUAN TRỌNG TẠI ĐÂY:
+      // Luôn gửi description và level hiện tại, bất kể có sửa hay không
       const payload = { 
         id: role.id,
-        roleName: name, // 👇 LUÔN GỬI TRƯỜNG NÀY (theo yêu cầu của bạn)
-        ...changes      // Gộp các trường thay đổi vào
+        roleName: name, 
+        description: processValue(description), // Luôn gửi description hiện tại
+        level: parseInt(level, 10) || 1,        // Luôn gửi level hiện tại (nếu NaN thì mặc định 1)
+        ...changes // Chỉ chứa permissions nếu có thay đổi
       };
 
       console.log('Update Role Payload:', payload);
@@ -696,6 +754,7 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated }) => {
       
       message.success('Cập nhật vai trò thành công!');
       onRoleUpdated(); 
+      onClose();
 
     } catch (err) {
       console.error(err);
@@ -705,7 +764,6 @@ const UpdateRoleModal = ({ role, allPermissions, onClose, onRoleUpdated }) => {
       setLoading(false);
     }
   };
-
   if (!role) return null;
 
   return (

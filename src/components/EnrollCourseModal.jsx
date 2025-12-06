@@ -323,187 +323,202 @@
 
 import React, { useState, useEffect } from 'react';
 import '../styles/Modal.css';
-// Gọi API riêng cho khóa học và user
-import { courseAPI, userAPI } from '../services/apiService'; 
+import { courseAPI, enrollmentAPI } from '../services/apiService'; 
 import Toast from './Toast';
 
-// Component này chỉ cần props cơ bản
 const EnrollCourseModal = ({ studentId, onClose, onSuccess }) => { 
     
-    const [allCourses, setAllCourses] = useState([]); // List tất cả khóa học
-    const [enrolledCourses, setEnrolledCourses] = useState([]); // List khóa học user đã đăng ký
+    const [allCourses, setAllCourses] = useState([]); 
+    const [enrolledCourses, setEnrolledCourses] = useState([]); 
     const [loadingMap, setLoadingMap] = useState({});
     const [toast, setToast] = useState(null);
-    const [courseToUnenroll, setCourseToUnenroll] = useState(null); // State kiểm soát Modal Xác nhận
+    const [courseToUnenroll, setCourseToUnenroll] = useState(null);
+    const [hasChanged, setHasChanged] = useState(false);
 
-    // Tính toán Set ID các môn đã đăng ký từ state local
-    const enrolledIds = new Set(enrolledCourses?.map(c => c.courseID) || []); 
+    const enrolledIds = new Set(enrolledCourses?.map(c => c.courseId || c.courseID) || []);
 
+    // 👇 1. KHÓA CUỘN TRANG BODY KHI MODAL MỞ
+    useEffect(() => {
+        // Khóa cuộn trang chính
+        document.body.style.overflow = 'hidden';
+        
+        // Mở lại cuộn khi đóng Modal
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
 
-    // 1. CHẠY SONG SONG: Fetch tất cả courses và MY enrollments
+    // 2. FETCH DỮ LIỆU
     useEffect(() => {
         const fetchDualData = async () => {
+            if (!studentId) return;
             try {
-                // 1. Fetch ALL courses (cho bảng hiển thị)
-                const coursesRes = await courseAPI.getAll(); 
-                
-                // 2. Fetch KHÓA HỌC ĐÃ ĐĂNG KÝ (cho logic so sánh)
-                const enrolledRes = await courseAPI.getMyEnrollments(); 
-                
-                console.log("🔥 MY ENROLLMENTS API RESPONSE:", enrolledRes.data.result); 
-
-                setAllCourses(coursesRes.data.result || []);
-                setEnrolledCourses(enrolledRes.data.result || []); // Cập nhật state mới
-                
+                const [coursesRes, enrolledRes] = await Promise.all([
+                    courseAPI.getAll(),
+                    enrollmentAPI.getByStudent(studentId)
+                ]);
+                setAllCourses(coursesRes.data?.result || coursesRes.result || []);
+                setEnrolledCourses(enrolledRes.data?.result || enrolledRes.result || []); 
             } catch (error) {
-                console.error("Lỗi tải dữ liệu kép:", error);
-                setToast({ message: 'Không thể tải dữ liệu khóa học. Vui lòng kiểm tra đăng nhập.', type: 'error' });
+                console.error("Lỗi tải dữ liệu:", error);
+                setToast({ message: 'Lỗi tải dữ liệu.', type: 'error' });
             }
         };
         fetchDualData();
-    }, []); 
+    }, [studentId]); 
 
-    // 2. Hàm xử lý ĐĂNG KÝ (Enroll)
+    // 3. XỬ LÝ ĐĂNG KÝ
     const handleEnroll = async (courseId) => {
         setLoadingMap(prev => ({ ...prev, [courseId]: true })); 
-
         try {
-            await courseAPI.enroll(courseId);
-            
+            await enrollmentAPI.register(studentId, courseId);
             setToast({ message: 'Đăng ký thành công!', type: 'success' });
-            
-            setTimeout(() => {
-                onClose(); 
-                onSuccess(); 
-            }, 2500); // Tăng thời gian chờ
+            setHasChanged(true);
 
+            setEnrolledCourses(prev => [...prev, { courseId: courseId }]);
+            setAllCourses(prevCourses => prevCourses.map(course => 
+                (course.courseId === courseId || course.courseID === courseId)
+                    ? { ...course, currentEnrollment: (course.currentEnrollment || 0) + 1 }
+                    : course
+            ));
         } catch (err) {
-            const msg = err.response?.data?.message || 'Đăng ký thất bại.';
+            const msg = err.response?.data?.result || err.response?.data?.message || 'Đăng ký thất bại.';
             setToast({ message: msg, type: 'error' });
-            setTimeout(() => setToast(null), 3000); 
+            reloadOriginalData();
         } finally {
             setLoadingMap(prev => ({ ...prev, [courseId]: false })); 
         }
     };
     
-    // 3. Hàm xử lý HỦY ĐĂNG KÝ (Unenroll)
+    // 4. XỬ LÝ HỦY ĐĂNG KÝ
     const handleUnenrollConfirm = async (courseId) => {
-        // Log để chắc chắn hàm này được gọi
-        console.log("🚨 CONFIRMATION CLICKED. Attempting unenroll for ID:", courseId);
-        
         setLoadingMap(prev => ({ ...prev, [courseId]: true })); 
-        setCourseToUnenroll(null); // Đóng modal xác nhận ngay lập tức
-
+        setCourseToUnenroll(null); 
         try {
-            await courseAPI.unenroll(courseId); // GỬI REQUEST
-            
+            await enrollmentAPI.cancel(studentId, courseId);
             setToast({ message: 'Hủy đăng ký thành công!', type: 'success' });
-            
-            // Chờ 2.5 giây trước khi đóng modal
-            setTimeout(() => {
-                onClose(); 
-                onSuccess(); 
-            }, 2500); 
+            setHasChanged(true); 
 
+            setEnrolledCourses(prev => prev.filter(c => (c.courseId || c.courseID) !== courseId));
+            setAllCourses(prevCourses => prevCourses.map(course => 
+                (course.courseId === courseId || course.courseID === courseId)
+                    ? { ...course, currentEnrollment: Math.max(0, (course.currentEnrollment || 0) - 1) }
+                    : course
+            ));
         } catch (err) {
-            const msg = err.response?.data?.message || 'Hủy thất bại. Vui lòng kiểm tra console.';
+            const msg = err.response?.data?.result || err.response?.data?.message || 'Hủy thất bại.';
             setToast({ message: msg, type: 'error' });
-            setTimeout(() => setToast(null), 3000); 
+            reloadOriginalData();
         } finally {
             setLoadingMap(prev => ({ ...prev, [courseId]: false })); 
         }
     };
 
+    const reloadOriginalData = async () => {
+        try {
+            const [coursesRes, enrolledRes] = await Promise.all([
+                courseAPI.getAll(),
+                enrollmentAPI.getByStudent(studentId)
+            ]);
+            setAllCourses(coursesRes.data?.result || []);
+            setEnrolledCourses(enrolledRes.data?.result || []);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleManualClose = () => {
+        if (hasChanged) onSuccess(); 
+        onClose(); 
+    };
 
     return (
         <div className="modal-overlay">
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-            {/* 🚨 BỔ SUNG: MODAL XÁC NHẬN HỦY ĐĂNG KÝ 🚨 */}
+            {/* Modal xác nhận hủy */}
             {courseToUnenroll && (
-                <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', zIndex: 1000 }}>
-                    <div className="modal-content" style={{ maxWidth: '400px', padding: '30px' }}>
-                        <div className="modal-header" style={{borderBottom: 'none'}}>
-                            <h3 style={{ margin: 0 }}>Xác Nhận Hủy Đăng Ký</h3>
-                            <button onClick={() => setCourseToUnenroll(null)} className="modal-close-btn">&times;</button>
-                        </div>
-                        <div className="modal-body" style={{ textAlign: 'center' }}>
-                            <p>Bạn có chắc chắn muốn hủy đăng ký khóa học **{courseToUnenroll.courseName}**?</p>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '20px' }}>
-                            <button onClick={() => setCourseToUnenroll(null)} className="btn-cancel" style={{padding: '10px 25px'}}>
-                                Hủy
-                            </button>
-                            {/* KẾT NỐI HÀM VÀ THAM SỐ CHÍNH XÁC */}
+                <div className="modal-overlay" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1100 }}>
+                    <div className="modal-content" style={{ maxWidth: '400px', padding: '20px', marginTop: '10%' }}>
+                        <h3 style={{ marginTop: 0, color: '#e74c3c' }}>Xác Nhận Hủy</h3>
+                        <p>Bạn muốn hủy môn <b>{courseToUnenroll.courseName}</b>?</p>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+                            <button onClick={() => setCourseToUnenroll(null)} className="btn-cancel">Quay lại</button>
                             <button 
-                                onClick={() => handleUnenrollConfirm(courseToUnenroll.courseID)} 
+                                onClick={() => handleUnenrollConfirm(courseToUnenroll.courseId || courseToUnenroll.courseID)} 
                                 className="btn-primary"
-                                style={{backgroundColor: '#e74c3c', padding: '10px 25px'}}
+                                style={{backgroundColor: '#e74c3c'}}
                             >
-                                Đồng ý
+                                Đồng ý Hủy
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-            {/* ----------------------------------------------- */}
 
-            <div className="modal-content" style={{ maxWidth: '1090px', width: '90%', height: 'auto' }}>
+            {/* Modal chính */}
+            <div className="modal-content" style={{ maxWidth: '1200px', width: '95%', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
                 <div className="modal-header">
                     <h2>Đăng ký Môn Học</h2>
-                    <button onClick={onClose} className="modal-close-btn">&times;</button>
+                    <button onClick={handleManualClose} className="modal-close-btn">&times;</button>
                 </div>
 
-                <div className="modal-body table-container" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-                    <table className="course-enrollment-table">
-                        <thead>
+                {/* 👇 2. SỬA CSS CHO TABLE CONTAINER:
+                   - overflowY: 'auto' (Cho phép cuộn nội dung)
+                   - flex: 1 (Chiếm hết chiều cao còn lại của modal)
+                */}
+                <div className="modal-body table-container" style={{ overflowY: 'auto', flex: 1, padding: 0 }}>
+                    <table className="course-enrollment-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        
+                        {/* 👇 3. LÀM STICKY HEADER (CỐ ĐỊNH TIÊU ĐỀ) */}
+                        <thead style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: '#f8f9fa', boxShadow: '0 2px 2px -1px rgba(0,0,0,0.1)' }}>
                             <tr>
-                                <th>Mã KH</th>
-                                <th>Tên Khóa Học</th>
-                                <th>Tín chỉ</th>
-                                <th>Giảng viên</th>
-                                <th>Sĩ số</th>
-                                <th>Thao tác</th>
+                                <th style={stickyHeaderStyle}>Mã KH</th>
+                                <th style={stickyHeaderStyle}>Tên Khóa Học</th>
+                                <th style={{...stickyHeaderStyle, textAlign: 'center', width: '80px'}}>Học kỳ</th> 
+                                <th style={{...stickyHeaderStyle, textAlign: 'center', width: '60px'}}>TC</th>
+                                <th style={stickyHeaderStyle}>Giảng viên</th>
+                                <th style={{...stickyHeaderStyle, textAlign: 'center', width: '100px'}}>Sĩ số</th>
+                                <th style={{...stickyHeaderStyle, textAlign: 'center', width: '120px'}}>Thao tác</th>
                             </tr>
                         </thead>
+                        
                         <tbody>
                             {allCourses.length > 0 ? (
                                 allCourses.map(course => {
-                                    const isFull = course.currentEnrollment >= course.maxCapacity;
-                                    const isLoading = loadingMap[course.courseID];
-                                    const isRegistered = enrolledIds.has(course.courseID); 
+                                    const cId = course.courseId || course.courseID;
+                                    const isFull = (course.currentEnrollment || 0) >= course.maxCapacity;
+                                    const isLoading = loadingMap[cId];
+                                    const isRegistered = enrolledIds.has(cId); 
 
                                     return (
-                                        <tr key={course.courseID}>
-                                            <td>{course.courseID}</td>
-                                            <td>{course.courseName}</td>
-                                            <td>{course.credits}</td>
-                                            <td>{course.lecturer?.fullName || 'N/A'}</td>
-                                            <td>
+                                        <tr key={cId} style={{ borderBottom: '1px solid #eee' }}>
+                                            <td style={{padding: '12px'}}>{cId}</td>
+                                            <td style={{fontWeight: 'bold', color: '#2c3e50', padding: '12px'}}>{course.courseName}</td>
+                                            <td style={{textAlign: 'center'}}>{course.semester || '-'}</td>
+                                            <td style={{textAlign: 'center'}}>{course.credits}</td>
+                                            <td style={{padding: '12px'}}>{course.lecturerName || '...'}</td>
+                                            <td style={{textAlign: 'center'}}>
                                                 <span style={{ color: isFull ? 'red' : 'green', fontWeight: 'bold' }}>
-                                                    {course.currentEnrollment}
+                                                    {course.currentEnrollment || 0}
                                                 </span> / {course.maxCapacity}
                                             </td>
-                                            <td>
+                                            <td style={{textAlign: 'center', padding: '12px'}}>
                                                 {isRegistered ? (
-                                                    // Nút HỦY ĐĂNG KÝ (gọi setCourseToUnenroll để mở modal xác nhận)
                                                     <button 
                                                         onClick={() => setCourseToUnenroll(course)}
                                                         className="btn-cancel"
-                                                        style={{ width: '120px', fontSize: '14px', backgroundColor: '#e74c3c', color: 'white' }}
+                                                        style={{ width: '100%', backgroundColor: '#e74c3c', color: 'white', border: 'none', padding: '6px' }}
                                                         disabled={isLoading}
                                                     >
-                                                        {isLoading ? 'Đang Hủy...' : 'Hủy ĐK'}
+                                                        {isLoading ? '...' : 'Hủy ĐK'}
                                                     </button>
                                                 ) : (
-                                                    // Nút ĐĂNG KÝ
                                                     <button 
-                                                        onClick={() => handleEnroll(course.courseID)}
+                                                        onClick={() => handleEnroll(cId)}
                                                         className="btn-primary"
+                                                        style={{ width: '100%', padding: '6px' }}
                                                         disabled={isFull || isLoading}
-                                                        style={{ width: '120px', fontSize: '14px' }}
                                                     >
-                                                        {isLoading ? 'Đang ĐK...' : (isFull ? 'Đã Đầy' : 'Đăng ký')}
+                                                        {isLoading ? '...' : (isFull ? 'Đã Đầy' : 'Đăng ký')}
                                                     </button>
                                                 )}
                                             </td>
@@ -511,20 +526,29 @@ const EnrollCourseModal = ({ studentId, onClose, onSuccess }) => {
                                     );
                                 })
                             ) : (
-                                <tr><td colSpan="6" style={{ textAlign: 'center' }}>Không tìm thấy khóa học nào để đăng ký.</td></tr>
+                                <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>Đang tải hoặc không có dữ liệu...</td></tr>
                             )}
                         </tbody>
                     </table>
                 </div>
 
-                <div className="modal-footer" style={{ justifyContent: 'flex-end' }}>
-                    <button onClick={onClose} className="btn-cancel" style={{padding: '10px 25px'}}>
-                        Đóng
-                    </button>
+                <div className="modal-footer">
+                    <button onClick={handleManualClose} className="btn-cancel">Đóng</button>
                 </div>
             </div>
         </div>
     );
 };
 
+// 👇 STYLE RIÊNG CHO HEADER ĐỂ GỌN CODE
+const stickyHeaderStyle = {
+    padding: '12px',
+    textAlign: 'left',
+    backgroundColor: '#f8f9fa', // Màu nền đục (quan trọng để che nội dung khi cuộn)
+    borderBottom: '2px solid #dee2e6',
+    whiteSpace: 'nowrap'
+};
+
 export default EnrollCourseModal;
+
+

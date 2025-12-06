@@ -314,4 +314,21 @@ export const courseAPI = {
   }
 };
 
+export const enrollmentAPI = {
+  // Đăng ký: Gửi studentId và courseId
+  register: (studentId, courseId) => {
+    return api.post('/identity/api/enrollments/register', { studentId, courseId });
+  },
+
+  // Hủy đăng ký
+  cancel: (studentId, courseId) => {
+    return api.post('/identity/api/enrollments/cancel', { studentId, courseId });
+  },
+
+  // Lấy danh sách môn đã đăng ký của sinh viên
+  getByStudent: (studentId) => {
+    return api.get(`/identity/api/enrollments/student/${studentId}`);
+  }
+};
+
 export default api;
