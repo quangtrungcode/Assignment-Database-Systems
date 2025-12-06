@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-05T01:37:18+0700",
+    date = "2025-12-06T22:20:40+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.9 (Oracle Corporation)"
 )
 @Component
@@ -35,18 +35,16 @@ public class RoleMapperImpl implements RoleMapper {
     }
 
     @Override
-    public Role toRoleUpdate(RoleUpdateRequest request) {
+    public Role toRoleUpdate(Role role, RoleUpdateRequest request) {
         if ( request == null ) {
-            return null;
+            return role;
         }
 
-        Role.RoleBuilder role = Role.builder();
+        role.setRoleName( request.getRoleName() );
+        role.setDescription( request.getDescription() );
+        role.setLevel( request.getLevel() );
 
-        role.roleName( request.getRoleName() );
-        role.description( request.getDescription() );
-        role.level( request.getLevel() );
-
-        return role.build();
+        return role;
     }
 
     @Override

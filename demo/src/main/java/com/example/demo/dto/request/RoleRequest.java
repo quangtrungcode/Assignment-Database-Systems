@@ -16,7 +16,7 @@ public class RoleRequest {
     @NotBlank(message = "ROLE_NAME_REQUIRED")
     String roleName;
     String description;
-    @Min(value = 1, message = "INVALID_LEVEL")
-    String level;
+   // @Min(value = 1, message = "INVALID_LEVEL")
+    Integer level;
     Set<String> permissions;
 }

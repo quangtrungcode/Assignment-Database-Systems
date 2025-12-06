@@ -23,7 +23,7 @@ public class Role {
     @Column(name = "Description")
     String description;
     @Column(name = "Level")
-    String level;
+    Integer level;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

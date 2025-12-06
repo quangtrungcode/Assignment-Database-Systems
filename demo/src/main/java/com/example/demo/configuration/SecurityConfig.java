@@ -213,3 +213,124 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(10);
     }
 }
+
+
+//package com.example.demo.configuration;
+//
+//import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.boot.web.servlet.FilterRegistrationBean; // 👈 Import mới
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.context.annotation.Configuration;
+//import org.springframework.core.Ordered; // 👈 Import mới
+//import org.springframework.http.HttpMethod;
+//import org.springframework.security.config.Customizer;
+//import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+//import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+//import org.springframework.security.oauth2.jwt.JwtDecoder;
+//import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+//import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+//import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+//import org.springframework.security.web.SecurityFilterChain;
+//import org.springframework.web.cors.CorsConfiguration;
+//import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+//import org.springframework.web.filter.CorsFilter;
+//
+//import javax.crypto.spec.SecretKeySpec;
+//import java.util.Arrays;
+//import java.util.Collections;
+//
+//@Configuration
+//@EnableWebSecurity
+//@EnableMethodSecurity
+//public class SecurityConfig {
+//
+//    private final String[] PUBLIC_POST_ENDPOINTS = {
+//            "/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"
+//    };
+//
+//    private final String[] PUBLIC_GET_ENDPOINTS = {
+//            "/socket.io/**", "/socket.io", "/ws/**"
+//    };
+//
+//    @Value("${jwt.signerKey}")
+//    private String signerKey;
+//
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+//        httpSecurity.authorizeHttpRequests(request ->
+//                request
+//                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Preflight
+//                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
+//                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+//                        .anyRequest().authenticated()
+//        );
+//
+//        httpSecurity.oauth2ResourceServer(oauth2 ->
+//                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
+//                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+//                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+//        );
+//
+//        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+//
+//        // ⚠️ QUAN TRỌNG: Vẫn giữ dòng này để Spring Security biết ta có dùng CORS
+//        httpSecurity.cors(Customizer.withDefaults());
+//
+//        return httpSecurity.build();
+//    }
+//
+//    // 👇 CẤU HÌNH CORS MẠNH NHẤT (Sử dụng FilterRegistrationBean)
+//    @Bean
+//    public FilterRegistrationBean<CorsFilter> corsFilterConfiguration() {
+//        CorsConfiguration corsConfiguration = new CorsConfiguration();
+//
+//        // 1. Cấu hình Origin (Cụ thể port Frontend để tránh lỗi credential)
+//        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:5174", "http://localhost:5173", "http://localhost:5175"));
+//
+//        // 2. Cấu hình Methods
+//        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+//
+//        // 3. Cấu hình Headers
+//        corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+//
+//        // 4. Cho phép Credentials
+//        corsConfiguration.setAllowCredentials(true);
+//        corsConfiguration.setMaxAge(3600L);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", corsConfiguration);
+//
+//        // Tạo Filter bean
+//        CorsFilter corsFilter = new CorsFilter(source);
+//
+//        // Đăng ký Filter với độ ưu tiên cao nhất
+//        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(corsFilter);
+//        bean.setOrder(Ordered.HIGHEST_PRECEDENCE); // 👈 QUAN TRỌNG NHẤT
+//        return bean;
+//    }
+//
+//    @Bean
+//    JwtAuthenticationConverter jwtAuthenticationConverter() {
+//        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+//        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+//        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+//        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+//        return jwtAuthenticationConverter;
+//    }
+//
+//    @Bean
+//    JwtDecoder jwtDecoder() {
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
+//        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
+//    }
+//
+//    @Bean
+//    PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder(10);
+//    }
+//}

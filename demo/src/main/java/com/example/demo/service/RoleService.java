@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.corundumstudio.socketio.SocketIOServer;
 import com.example.demo.dto.request.RoleRequest;
 import com.example.demo.dto.request.RoleUpdateRequest;
 import com.example.demo.dto.response.RoleResponse;
@@ -27,7 +28,7 @@ public class RoleService {
     RoleRepository roleRepository;
     PermissionRepository permissionRepository;
     RoleMapper roleMapper;
-
+    SocketIOServer socketIOServer;
     @Transactional
     public RoleResponse create(RoleRequest request){
         var permissions = permissionRepository.findAllById(request.getPermissions());
@@ -50,14 +51,16 @@ public class RoleService {
         var role= roleRepository.findById(roleUpdateRequest.getRoleName()).orElseThrow(()->new AppException(ErrorCode.ROLE_NOT_FOUND));
 
         role.setPermissions(new HashSet<>(permissions));
-        role = roleMapper.toRoleUpdate(roleUpdateRequest);
-
+        roleMapper.toRoleUpdate(role, roleUpdateRequest);
+        RoleResponse roleResponse = roleMapper.toRoleResponse(roleRepository.save(role));
+        socketIOServer.getBroadcastOperations().sendEvent("UPDATE_ROLE_SUCCESS", roleResponse.getRoleName());
      //  role.setPermissions(new HashSet<>(permissions));
        // role.setPermissions(new HashSet<>(roleUpdateRequest.getPermissions()));
 
       //  role.setDescription(role.getName());
         // role = roleRepository.save(role);
-        return roleMapper.toRoleResponse(roleRepository.save(role));
+        return  roleResponse;
+       // return roleMapper.toRoleResponse(roleRepository.save(role));
     }
 
     public RoleResponse getRole(String roleId) {

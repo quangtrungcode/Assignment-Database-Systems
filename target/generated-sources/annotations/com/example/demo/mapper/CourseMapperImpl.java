@@ -1,24 +1,22 @@
 package com.example.demo.mapper;
 
 import com.example.demo.dto.request.CourseCreationRequest;
+import com.example.demo.dto.request.CourseUpdateRequest;
 import com.example.demo.dto.response.CourseResponse;
-import com.example.demo.dto.response.StudentCourseResponse;
 import com.example.demo.entity.Course;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-03T19:58:00+0700",
+    date = "2025-12-06T23:08:40+0700",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.9 (Oracle Corporation)"
 )
 @Component
 public class CourseMapperImpl implements CourseMapper {
 
     @Override
-    public Course toCourse(CourseCreationRequest request) {
+    public Course toEntity(CourseCreationRequest request) {
         if ( request == null ) {
             return null;
         }
@@ -28,8 +26,21 @@ public class CourseMapperImpl implements CourseMapper {
         course.courseName( request.getCourseName() );
         course.credits( request.getCredits() );
         course.maxCapacity( request.getMaxCapacity() );
+        course.semester( request.getSemester() );
 
         return course.build();
+    }
+
+    @Override
+    public void updateCourseFromRequest(CourseUpdateRequest request, Course course) {
+        if ( request == null ) {
+            return;
+        }
+
+        course.setCourseName( request.getCourseName() );
+        course.setCredits( request.getCredits() );
+        course.setMaxCapacity( request.getMaxCapacity() );
+        course.setSemester( request.getSemester() );
     }
 
     @Override
@@ -40,41 +51,14 @@ public class CourseMapperImpl implements CourseMapper {
 
         CourseResponse.CourseResponseBuilder courseResponse = CourseResponse.builder();
 
-        courseResponse.maxCapacity( course.getMaxCapacity() );
-        courseResponse.courseID( course.getCourseID() );
+        courseResponse.currentEnrollment( countStudents( course.getStudents() ) );
+        courseResponse.lecturerName( joinLecturerNames( course.getLecturers() ) );
+        courseResponse.courseId( course.getCourseId() );
         courseResponse.courseName( course.getCourseName() );
         courseResponse.credits( course.getCredits() );
-
-        courseResponse.currentEnrollment( course.getStudents() == null ? 0 : course.getStudents().size() );
+        courseResponse.maxCapacity( course.getMaxCapacity() );
+        courseResponse.semester( course.getSemester() );
 
         return courseResponse.build();
-    }
-
-    @Override
-    public Set<StudentCourseResponse> toStudentCourseResponseSet(Set<Course> courses) {
-        if ( courses == null ) {
-            return null;
-        }
-
-        Set<StudentCourseResponse> set = new LinkedHashSet<StudentCourseResponse>( Math.max( (int) ( courses.size() / .75f ) + 1, 16 ) );
-        for ( Course course : courses ) {
-            set.add( courseToStudentCourseResponse( course ) );
-        }
-
-        return set;
-    }
-
-    protected StudentCourseResponse courseToStudentCourseResponse(Course course) {
-        if ( course == null ) {
-            return null;
-        }
-
-        StudentCourseResponse.StudentCourseResponseBuilder studentCourseResponse = StudentCourseResponse.builder();
-
-        studentCourseResponse.courseID( course.getCourseID() );
-        studentCourseResponse.courseName( course.getCourseName() );
-        studentCourseResponse.credits( course.getCredits() );
-
-        return studentCourseResponse.build();
     }
 }

@@ -13,6 +13,6 @@ import java.util.Set;
 public class RoleResponse {
     String roleName;
     String description;
-    String level;
+    Integer level;
     Set<PermissionResponse> permissions;
 }

@@ -1,5 +1,7 @@
 package com.example.demo.dto.request;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,15 +11,13 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseUpdateRequest {
-    String courseName;
+     //@NotBlank(message = "COURSE_NAME_REQUIRED")
+     String courseName;
+     @Min(value = 1, message = "INVALID_CREDIT")
+     int credits;
+     @Min(value = 10, message = "INVALID_MAX_CAPACITY")
+     int  maxCapacity;
 
-    // Số tín chỉ mới (Có thể null nếu không đổi)
-    Integer credits;
-
-    // Sĩ số tối đa mới (Có thể null nếu không đổi)
-    Integer maxCapacity;
-
-    // ID Giảng viên mới (Có thể null nếu không đổi)
-    String lecturerId;
+     Integer semester;
 }
 

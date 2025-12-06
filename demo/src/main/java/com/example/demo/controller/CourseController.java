@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.ClassRequest;
 import com.example.demo.dto.request.CourseCreationRequest;
 import com.example.demo.dto.request.CourseUpdateRequest;
 import com.example.demo.dto.response.ApiResponse;
@@ -50,24 +51,24 @@ public class CourseController {
 //    }
 
     @GetMapping
-// @PreAuthorize("hasAuthority('ROLE_admin')") // Nếu muốn chỉ Admin mới xem được
-// Hoặc để "hasAnyAuthority('ROLE_admin', 'ROLE_student', 'ROLE_lecturer')" nếu ai cũng xem được
+//// @PreAuthorize("hasAuthority('ROLE_admin')") // Nếu muốn chỉ Admin mới xem được
+//// Hoặc để "hasAnyAuthority('ROLE_admin', 'ROLE_student', 'ROLE_lecturer')" nếu ai cũng xem được
     public ApiResponse<List<CourseResponse>> getAllCourses() {
         return ApiResponse.<List<CourseResponse>>builder()
                 .result(courseService.getAllCourses())
                 .build();
     }
 
-//    @PutMapping("/{courseId}")
+    @PutMapping("/{courseId}")
 //    //@PreAuthorize("hasAuthority('ROLE_admin')") // Chỉ Admin được cập nhật
-//    public ApiResponse<CourseResponse> updateCourse(
-//            @PathVariable String courseId,
-//            @RequestBody CourseUpdateRequest request) {
-//
-//        return ApiResponse.<CourseResponse>builder()
-//                .result(courseService.updateCourse(courseId, request))
-//                .build();
-//    }
+    public ApiResponse<CourseResponse> updateCourse(
+            @PathVariable String courseId,
+            @RequestBody @Valid CourseUpdateRequest request) {
+
+        return ApiResponse.<CourseResponse>builder()
+                .result(courseService.updateCourse(courseId, request))
+                .build();
+    }
 
     @DeleteMapping("/{courseId}")
     //@PreAuthorize("hasAuthority('ROLE_admin')") // Chỉ Admin được xóa
@@ -79,36 +80,53 @@ public class CourseController {
                 .build();
     }
 
-    @PostMapping("/{courseId}/enroll")
-// Chỉ cho phép sinh viên (ROLE_student) đăng ký
-    //@PreAuthorize("hasAuthority('ROLE_student')")
-    public ApiResponse<Void> enrollStudentToCourse(@PathVariable String courseId) {
+//    @PostMapping("/{courseId}/enroll")
+//// Chỉ cho phép sinh viên (ROLE_student) đăng ký
+//    //@PreAuthorize("hasAuthority('ROLE_student')")
+//    public ApiResponse<Void> enrollStudentToCourse(@PathVariable String courseId) {
+//
+//        courseService.enrollStudent(courseId);
+//
+//        return ApiResponse.<Void>builder()
+//                .message("Đăng ký khóa học thành công!")
+//                .build();
+//    }
+//
+//    @DeleteMapping("/{courseId}/unenroll")
+//// Chỉ sinh viên (ROLE_student) mới có quyền tự hủy đăng ký
+//    //@PreAuthorize("hasAuthority('ROLE_student')")
+//    public ApiResponse<Void> unenrollStudentFromCourse(@PathVariable String courseId) {
+//
+//        courseService.unenrollStudent(courseId);
+//
+//        return ApiResponse.<Void>builder()
+//                .message("Hủy đăng ký khóa học thành công!")
+//                .build();
+//    }
 
-        courseService.enrollStudent(courseId);
+//    @GetMapping("/my-enrollments")
+//// Chỉ sinh viên mới được gọi API này
+//    //@PreAuthorize("hasAuthority('ROLE_student')")
+//    public ApiResponse<Set<StudentCourseResponse>> getMyEnrollments() {
+//        return ApiResponse.<Set<StudentCourseResponse>>builder()
+//                .result(courseService.getEnrolledCoursesForCurrentUser())
+//                .build();
+//    }
 
-        return ApiResponse.<Void>builder()
-                .message("Đăng ký khóa học thành công!")
-                .build();
+    @PostMapping
+    public ApiResponse<CourseResponse> createCourse(@RequestBody @Valid CourseCreationRequest request) {
+        ApiResponse <CourseResponse>apiResponse=new ApiResponse<>();
+        apiResponse.setResult(courseService.createCourse(request));
+        return apiResponse;
     }
 
-    @DeleteMapping("/{courseId}/unenroll")
-// Chỉ sinh viên (ROLE_student) mới có quyền tự hủy đăng ký
-    //@PreAuthorize("hasAuthority('ROLE_student')")
-    public ApiResponse<Void> unenrollStudentFromCourse(@PathVariable String courseId) {
-
-        courseService.unenrollStudent(courseId);
-
-        return ApiResponse.<Void>builder()
-                .message("Hủy đăng ký khóa học thành công!")
-                .build();
-    }
-
-    @GetMapping("/my-enrollments")
-// Chỉ sinh viên mới được gọi API này
-    //@PreAuthorize("hasAuthority('ROLE_student')")
-    public ApiResponse<Set<StudentCourseResponse>> getMyEnrollments() {
-        return ApiResponse.<Set<StudentCourseResponse>>builder()
-                .result(courseService.getEnrolledCoursesForCurrentUser())
-                .build();
-    }
+    // API: Thêm lớp vào môn học cũ
+//    @PostMapping("/{courseId}/classes")
+//    public ApiResponse<CourseResponse> addClassToCourse(
+//            @PathVariable String courseId,
+//            @RequestBody ClassRequest classRequest) {
+//        ApiResponse <CourseResponse>apiResponse=new ApiResponse<>();
+//        apiResponse.setResult(courseService.addClassToCourse(courseId, classRequest));
+//        return apiResponse;
+//    }
 }
