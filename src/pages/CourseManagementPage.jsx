@@ -944,17 +944,30 @@ const CourseManagementPage = () => {
     const socket = io('http://localhost:8085'); // Đảm bảo URL này đúng với server của bạn
 
     // Lắng nghe sự kiện HỦY MÔN
-    socket.on('CANCEL_COURSE', (data) => {
+    socket.on('STUDENT_CANCEL_COURSE', (data) => {
         console.log('Real-time: Có sinh viên hủy môn. UserID:', data);
         fetchCourses(); // Tải lại danh sách để cập nhật sĩ số
         setToast({ message: 'Dữ liệu vừa được cập nhật (Có sinh viên hủy môn)', type: 'info' });
     });
 
     // Lắng nghe sự kiện ĐĂNG KÝ MÔN (Giả sử backend bạn đặt tên là REGISTER_COURSE)
-    socket.on('REGISTER_COURSE', (data) => {
+    socket.on('STUDENT_REGISTER_COURSE', (data) => {
         console.log('Real-time: Có sinh viên đăng ký môn. UserID:', data);
         fetchCourses(); // Tải lại danh sách
         setToast({ message: 'Dữ liệu vừa được cập nhật (Có sinh viên đăng ký mới)', type: 'info' });
+    });
+
+    socket.on('CANCEL_TEACHING', (data) => {
+        console.log('Real-time: Có giảng viên hủy môn. UserID:', data);
+        fetchCourses(); // Tải lại danh sách để cập nhật sĩ số
+        setToast({ message: 'Dữ liệu vừa được cập nhật (Có giảng viên hủy môn)', type: 'info' });
+    });
+
+    // Lắng nghe sự kiện ĐĂNG KÝ MÔN (Giả sử backend bạn đặt tên là REGISTER_COURSE)
+    socket.on('REGISTER_TEACHING', (data) => {
+        console.log('Real-time: Có giảng viên đăng ký môn. UserID:', data);
+        fetchCourses(); // Tải lại danh sách
+        setToast({ message: 'Dữ liệu vừa được cập nhật (Có giảng viên đăng ký mới)', type: 'info' });
     });
 
     // Cleanup khi component bị hủy (unmount)

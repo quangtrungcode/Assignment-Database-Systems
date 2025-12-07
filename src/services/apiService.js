@@ -328,6 +328,28 @@ export const enrollmentAPI = {
   // Lấy danh sách môn đã đăng ký của sinh viên
   getByStudent: (studentId) => {
     return api.get(`/identity/api/enrollments/student/${studentId}`);
+  },
+
+  getTotalCredits: (studentId) => {
+        // Đường dẫn phải khớp với Controller (@RequestMapping + @GetMapping)
+        return api.get(`/identity/api/enrollments/total-credits/${studentId}`);
+    }
+};
+
+export const teachingAPI = {
+  // Đăng ký dạy: Gửi { lecturerId, courseId }
+  register: (lecturerId, courseId) => {
+    return api.post('/identity/teaching/register', { lecturerId, courseId });
+  },
+
+  // Hủy dạy: Gửi { lecturerId, courseId }
+  cancel: (lecturerId, courseId) => {
+    return api.post('/identity/teaching/cancel', { lecturerId, courseId });
+  },
+
+  // Lấy danh sách lớp đang dạy
+  getMyClasses: (lecturerId) => {
+    return api.get(`/identity/teaching/lecturer/${lecturerId}`);
   }
 };
 
