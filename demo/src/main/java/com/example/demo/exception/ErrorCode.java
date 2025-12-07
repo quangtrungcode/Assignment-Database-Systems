@@ -55,7 +55,8 @@ UNCATEGORIZED_EXCEPTION(9999, "Lỗi không được phân loại", HttpStatus.I
     ROLE_NAME_REQUIRED(1025,"Vai trò không được để trống", HttpStatus.BAD_REQUEST),
     INVALID_LEVEL(1026,"Cấp độ tôí thiểu là 1", HttpStatus.BAD_REQUEST),
     PERMISSION_REQUIRED(1027,"Không được để trống tên quyền", HttpStatus.BAD_REQUEST),
-    COURSE_MAX_LECTURER_REACHED(1028,"Lớp đã đạt số lượng giảng viên tối đa.", HttpStatus.BAD_REQUEST);
+    COURSE_MAX_LECTURER_REACHED(1028,"Lớp đã đạt số lượng giảng viên tối đa.", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_ADMIN_ROLE(1029,"Vai trò Admin không thể bị xóa", HttpStatus.BAD_REQUEST);
     int code;
     String message;
     HttpStatusCode statusCode;

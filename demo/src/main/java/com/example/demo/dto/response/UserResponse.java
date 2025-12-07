@@ -23,7 +23,7 @@ public class UserResponse {
     String gender;
     Set<String> phones;
     Date birthDate;
-    String passwordHash;
+ //   String passwordHash;
 //    Set<String> roles;
     RoleResponse role;
     //String roleName;

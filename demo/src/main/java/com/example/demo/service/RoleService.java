@@ -34,24 +34,27 @@ public class RoleService {
         var permissions = permissionRepository.findAllById(request.getPermissions());
 //        if(permissions.isEmpty())
 //            throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
-//        if(roleRepository.existsByRoleName(request.getName())) {
-//            throw new AppException(ErrorCode.ROLE_EXISTED);
-//        }
+        if(roleRepository.existsByRoleName(request.getRoleName())) {
+            throw new AppException(ErrorCode.ROLE_EXISTED);
+        }
         var role = roleMapper.toRole(request);
+       // role.setRoleName(request.getRoleName());
         role.setPermissions(new HashSet<>(permissions));
        // role = roleRepository.save(role);
         return roleMapper.toRoleResponse(roleRepository.save(role));
 
     }
 
-    public RoleResponse updateRole(RoleUpdateRequest roleUpdateRequest){
+    public RoleResponse updateRole(String roleId,RoleUpdateRequest roleUpdateRequest){
         var permissions = permissionRepository.findAllById(roleUpdateRequest.getPermissions());
 //        if(permissions.isEmpty())
 //            throw new AppException(ErrorCode.PERMISSION_NOT_FOUND);
-        var role= roleRepository.findById(roleUpdateRequest.getRoleName()).orElseThrow(()->new AppException(ErrorCode.ROLE_NOT_FOUND));
-
+     //   var role= roleRepository.findById(roleUpdateRequest.getRoleName()).orElseThrow(()->new AppException(ErrorCode.ROLE_NOT_FOUND));
+        var role= roleRepository.findById(roleId).orElseThrow(()->new AppException(ErrorCode.ROLE_NOT_FOUND));
         role.setPermissions(new HashSet<>(permissions));
+       // role.setRoleName(roleId.trim().toUpperCase());
         roleMapper.toRoleUpdate(role, roleUpdateRequest);
+
         RoleResponse roleResponse = roleMapper.toRoleResponse(roleRepository.save(role));
         socketIOServer.getBroadcastOperations().sendEvent("UPDATE_ROLE_SUCCESS", roleResponse.getRoleName());
      //  role.setPermissions(new HashSet<>(permissions));
@@ -76,6 +79,10 @@ public class RoleService {
     }
 
     public void delete(String role){
+        if ("Admin".equalsIgnoreCase(role)) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_ADMIN_ROLE);
+            // Hoặc throw new RuntimeException("Không được phép xóa vai trò Quản trị viên hệ thống!");
+        }
         roleRepository.deleteById(role);
     }
 }

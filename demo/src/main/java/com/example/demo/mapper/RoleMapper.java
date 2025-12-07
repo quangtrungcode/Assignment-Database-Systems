@@ -12,10 +12,12 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 //,nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
+   // @Mapping(target = "roleName", ignore = true)
     @Mapping(target = "permissions", ignore = true)
     @Mapping(target = "users", ignore = true)
     Role toRole(RoleRequest request);
 
+   // @Mapping(target = "roleName", ignore = true)
     @Mapping(target = "permissions", ignore = true)
   //  @Mapping(target = "description", ignore = true)
     @Mapping(target = "users", ignore = true)

@@ -21,6 +21,7 @@ public interface UserMapper {
     //@Mapping(target = "roleType", ignore = true)
     //@Mapping(target = "roleResponse", ignore = true)
    // @Mapping(target = "roleResponse", source = "role")
+
     @Mapping(target = "career", ignore = true)     // Tạm thời ignore để xử lý sau
     @Mapping(target = "profession", ignore = true)
     UserResponse toUserResponse(User user);

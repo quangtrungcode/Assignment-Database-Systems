@@ -24,6 +24,7 @@ public class Role {
     String description;
     @Column(name = "Level")
     Integer level;
+   // String level;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

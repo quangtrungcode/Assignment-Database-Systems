@@ -14,5 +14,6 @@ public class RoleResponse {
     String roleName;
     String description;
     Integer level;
+    //String level;
     Set<PermissionResponse> permissions;
 }

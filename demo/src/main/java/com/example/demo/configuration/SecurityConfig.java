@@ -104,6 +104,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -138,6 +139,14 @@ public class SecurityConfig {
             "/socket.io"
     };
 
+    private static final String[] SWAGGER_WHITELIST = {
+            "/identity/v3/api-docs/**",
+            "/identity/swagger-ui/index.html",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+    };
+
     @Value("${jwt.signerKey}")
     private String signerKey;
 
@@ -147,7 +156,7 @@ public class SecurityConfig {
                 request
                         // Cho phép POST tới các endpoint public (Login, Register...)
                         .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
-
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
                         // 👇 QUAN TRỌNG: Cho phép truy cập Socket.IO (thường là GET) không cần token ở tầng Security
                         // (Token sẽ được check riêng trong logic của Socket server nếu cần)
                         .requestMatchers(PUBLIC_GET_ENDPOINTS).permitAll()
@@ -212,6 +221,7 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
+
 }
 
 

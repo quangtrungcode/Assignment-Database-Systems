@@ -29,10 +29,10 @@ public class RoleController {
                 .build();
     }
 
-    @PutMapping
-    ApiResponse<RoleResponse> update(@RequestBody RoleUpdateRequest request){
+    @PutMapping("/{roleId}")
+    ApiResponse<RoleResponse> update(@PathVariable String roleId, @RequestBody RoleUpdateRequest request){
         return ApiResponse.<RoleResponse>builder()
-                .result(roleService.updateRole(request))
+                .result(roleService.updateRole(roleId,request))
                 .build();
     }
 

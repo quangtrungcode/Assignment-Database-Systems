@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 //}
 
 @Mapper(componentModel = "spring") // Để Spring có thể @Autowired
-public interface CourseMapper {
+    public interface CourseMapper {
 
 //    // 1. Map từ Request tạo Course sang Entity Course
 //    // MapStruct tự động map List<ClassRequest> sang List<CourseClass> nhờ hàm bên dưới
