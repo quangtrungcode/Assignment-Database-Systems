@@ -282,9 +282,9 @@ export const roleAPI = {
   getById: (id) => {
     return api.get(`/identity/roles/${id}`);
   },
-  update: (roleData) => {
-    return api.put(`/identity/roles`, roleData);
-  },
+  update: (roleId, roleData) => {
+        return api.put(`/identity/roles/${roleId}`, roleData);
+    },
   delete: (id) => {
     return api.delete(`/identity/roles/${id}`); 
   },
