@@ -88,7 +88,7 @@ private String courseId;
 
     // 2. Map ngược về Lecturer
     // "courses" là tên biến Set<Course> trong class Lecturer
-    @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "courses")
     @JsonIgnore
     Set<Lecturer> lecturers;
 

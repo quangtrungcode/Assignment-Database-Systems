@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.corundumstudio.socketio.SocketIOServer;
 import com.example.demo.dto.request.ClassRequest;
 import com.example.demo.dto.request.CourseCreationRequest;
 import com.example.demo.dto.request.CourseUpdateRequest;
@@ -16,6 +17,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,6 +36,7 @@ public class CourseService {
     //CourseClassRepository courseClassRepository;
     private final LectureRepository lectureRepository;
     private final StudentRepository studentRepository;
+    SocketIOServer socketIOServer;
 
     // 1. Admin hoặc Client xem khóa học của một Giảng viên cụ thể
 //    public List<CourseResponse> getCoursesByLecturerId(String lecturerId) {
@@ -137,7 +141,14 @@ public class CourseService {
         courseRepository.deletePrereqByCourseId(courseId);
         // 2. Tiến hành xóa
         courseRepository.deleteById(courseId);
-
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                // Gửi sự kiện 'DELETE_COURSE' kèm theo ID của khóa vừa xóa
+                socketIOServer.getBroadcastOperations().sendEvent("DELETE_COURSE", courseId);
+            //    System.out.println("Socket sent: DELETE_COURSE - ID: " + courseId);
+            }
+        });
         // Lưu ý: Nếu khóa học đang có sinh viên đăng ký, bạn cần xử lý thêm:
         // a) Xóa hết liên kết trong bảng trung gian Course_Student trước, hoặc
         // b) Đặt CascadeType.ALL trong Entity để JPA tự xóa.
@@ -302,7 +313,9 @@ public class CourseService {
 
         // 3. Lưu và trả về (Dùng Mapper chuyển ngược Entity -> DTO)
         Course savedCourse = courseRepository.save(course);
-        return courseMapper.toCourseResponse(savedCourse);
+        CourseResponse courseResponse = courseMapper.toCourseResponse(savedCourse);
+        socketIOServer.getBroadcastOperations().sendEvent("CREATE_COURSE_SUCCESS", courseResponse.getCourseId());
+        return courseResponse;
     }
 
     // --- CẬP NHẬT ---
@@ -318,7 +331,10 @@ public class CourseService {
 
         // 3. Lưu và trả về
         Course savedCourse = courseRepository.save(existingCourse);
-        return courseMapper.toCourseResponse(savedCourse);
+        CourseResponse courseResponse = courseMapper.toCourseResponse(savedCourse);
+        socketIOServer.getBroadcastOperations().sendEvent("UPDATE_COURSE_SUCCESS", courseResponse.getCourseId());
+      //  return courseMapper.toCourseResponse(savedCourse);
+        return courseResponse;
     }
 
     // --- LẤY TẤT CẢ ---

@@ -40,4 +40,13 @@ public class EnrollmentController {
                 .result(enrollmentService.getEnrollmentsByStudentId(studentId))
                 .build();
     }
+
+    @GetMapping("/total-credits/{studentId}")
+    public ApiResponse<Integer> getTotalCredits(@PathVariable String studentId) {
+        int credits = enrollmentService.getTotalCredits(studentId);
+
+        return ApiResponse.<Integer>builder()
+                .result(credits) // Trả về số int (ví dụ: 15)
+                .build();
+    }
 }

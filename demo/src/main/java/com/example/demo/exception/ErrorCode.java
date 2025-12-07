@@ -46,7 +46,7 @@ UNCATEGORIZED_EXCEPTION(9999, "Lỗi không được phân loại", HttpStatus.I
     ROLE_EXISTED(1016,"Vai trò đã tồn tại", HttpStatus.BAD_REQUEST),
     PERMISSION_EXISTED(1017,"Quyền đã tồn tại", HttpStatus.BAD_REQUEST),
     COURSE_NOT_FOUND(1018,"Khóa học không tìm thấy", HttpStatus.BAD_REQUEST),
-    COURSE_FULL(1019,"Khóa học đã đủ chỗ", HttpStatus.BAD_REQUEST),
+    COURSE_FULL(1019,"Môn học này đã đạt tối đa số lượng sinh viên đăng ký", HttpStatus.BAD_REQUEST),
     ALREADY_ENROLLED(1020,"Đã đăng ký khóa học", HttpStatus.BAD_REQUEST),
     NOT_ENROLLED(1021,"Sinh viên không đăng ký khóa học này", HttpStatus.BAD_REQUEST),
     INVALID_MAX_CAPACITY(1022,"Sĩ số tối thiểu là 10", HttpStatus.BAD_REQUEST),
@@ -54,7 +54,8 @@ UNCATEGORIZED_EXCEPTION(9999, "Lỗi không được phân loại", HttpStatus.I
     COURSE_NAME_REQUIRED(1024,"Không được để trống tên khóa học", HttpStatus.BAD_REQUEST),
     ROLE_NAME_REQUIRED(1025,"Vai trò không được để trống", HttpStatus.BAD_REQUEST),
     INVALID_LEVEL(1026,"Cấp độ tôí thiểu là 1", HttpStatus.BAD_REQUEST),
-    PERMISSION_REQUIRED(1027,"Không được để trống tên quyền", HttpStatus.BAD_REQUEST);
+    PERMISSION_REQUIRED(1027,"Không được để trống tên quyền", HttpStatus.BAD_REQUEST),
+    COURSE_MAX_LECTURER_REACHED(1028,"Lớp đã đạt số lượng giảng viên tối đa.", HttpStatus.BAD_REQUEST);
     int code;
     String message;
     HttpStatusCode statusCode;

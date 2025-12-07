@@ -5,8 +5,11 @@ import com.example.demo.dto.request.EnrollmentRequest;
 import com.example.demo.dto.response.CourseResponse;
 import com.example.demo.entity.Course;
 import com.example.demo.entity.Student;
+import com.example.demo.exception.AppException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.CourseMapper;
 import com.example.demo.repository.CourseRepository;
+import com.example.demo.repository.EnrollmentRepository;
 import com.example.demo.repository.StudentRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class EnrollmentService {
     CourseRepository courseRepository;
     CourseMapper courseMapper;
     SocketIOServer socketIOServer;
+    EnrollmentRepository enrollmentRepository;
     // --- ĐĂNG KÝ HỌC PHẦN ---
     @Transactional
     public void registerCourse(EnrollmentRequest request) {
@@ -49,7 +53,7 @@ public class EnrollmentService {
         // Lưu ý: course.getStudents().size() sẽ đếm số lượng hiện tại
         int currentSize = course.getStudents().size();
         if (currentSize >= course.getMaxCapacity()) {
-            throw new RuntimeException("Lớp học đã đầy (" + currentSize + "/" + course.getMaxCapacity() + ")");
+            throw new AppException(ErrorCode.COURSE_FULL);
         }
 
         // 5. THỰC HIỆN ĐĂNG KÝ
@@ -62,7 +66,7 @@ public class EnrollmentService {
             @Override
             public void afterCommit() {
                 // Chỉ bắn socket khi DB đã lưu xong xuôi
-                socketIOServer.getBroadcastOperations().sendEvent("REGISTER_COURSE", student1.getUserID());
+                socketIOServer.getBroadcastOperations().sendEvent("STUDENT_REGISTER_COURSE", student1.getUserID());
             }
         });
       //  socketIOServer.getBroadcastOperations().sendEvent("REGISTER_COURSE", student1.getUserID());
@@ -88,7 +92,7 @@ public class EnrollmentService {
             @Override
             public void afterCommit() {
                 // Chỉ bắn socket khi DB đã lưu xong xuôi
-                socketIOServer.getBroadcastOperations().sendEvent("CANCEL_COURSE", student1.getUserID());
+                socketIOServer.getBroadcastOperations().sendEvent("STUDENT_CANCEL_COURSE", student1.getUserID());
             }
         });
         //socketIOServer.getBroadcastOperations().sendEvent("CANCEL_COURSE", student1.getUserID());
@@ -101,5 +105,15 @@ public class EnrollmentService {
         return student.getCourses().stream()
                 .map(courseMapper::toCourseResponse) // Chuyển Entity -> DTO
                 .collect(Collectors.toList());
+
+
+    }
+
+    public int getTotalCredits(String studentId) {
+        // Gọi repository chạy native query
+        Integer total = enrollmentRepository.getTotalCredits(studentId);
+
+        // Xử lý null (nếu DB trả về null thì coi là 0)
+        return total != null ? total : 0;
     }
 }
