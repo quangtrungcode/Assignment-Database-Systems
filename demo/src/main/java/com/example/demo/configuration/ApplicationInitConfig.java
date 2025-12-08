@@ -47,6 +47,7 @@ public class ApplicationInitConfig {
                         .roleName("Admin")
                         .description("Quản trị viên hệ thống")
                        // .permissions(Set.of(permission1))
+                        .level(1)
                         .build();
 
                 roleRepository.save(role);
