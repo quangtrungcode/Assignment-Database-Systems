@@ -1,11 +1,11 @@
 // src/components/PermissionManagement.jsx
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa'; // Import icons
+import { FaEdit, FaTrash } from 'react-icons/fa'; 
 import { permissionAPI } from '../services/apiService';
 import UpdatePermissionModal from './UpdatePermissionModal';
-import ConfirmationModal from './ConfirmationModal'; // Import ConfirmationModal
+import ConfirmationModal from './ConfirmationModal'; 
 import Toast from './Toast';
-import '../styles/Dashboard.css'; // Sử dụng chung file CSS
+import '../styles/Dashboard.css'; 
 
 const PermissionManagement = () => {
   const [permissions, setPermissions] = useState([]);
@@ -14,8 +14,8 @@ const PermissionManagement = () => {
   const [toast, setToast] = useState(null);
   const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState(null);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false); // State for confirmation modal visibility
-  const [permissionToDeleteId, setPermissionToDeleteId] = useState(null); // State to store the ID of the permission to delete
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false); 
+  const [permissionToDeleteId, setPermissionToDeleteId] = useState(null); 
 
   const fetchPermissions = async () => {
     setLoading(true);
@@ -27,7 +27,7 @@ const PermissionManagement = () => {
         setPermissions([]);
       }
     } catch (err) {
-      let errorMessage = 'Đã xảy ra lỗi không xác định.'; // Default generic message
+      let errorMessage = 'Đã xảy ra lỗi không xác định.'; 
       if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err.request) {
@@ -62,9 +62,9 @@ const PermissionManagement = () => {
     try {
       await permissionAPI.delete(permissionToDeleteId);
       setToast({ message: 'Xóa quyền thành công!', type: 'success' });
-      fetchPermissions(); // Tải lại danh sách
+      fetchPermissions(); 
     } catch (err) {
-      let errorMessage = 'Đã xảy ra lỗi không xác định.'; // Default generic message
+      let errorMessage = 'Đã xảy ra lỗi không xác định.';
       if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err.request) {
@@ -82,7 +82,7 @@ const PermissionManagement = () => {
   const handlePermissionUpdated = () => {
     fetchPermissions();
     setToast({ message: 'Cập nhật quyền thành công!', type: 'success' });
-    window.scrollTo(0, 0); // Scroll to top after update
+    window.scrollTo(0, 0);
   };
 
   if (loading) {

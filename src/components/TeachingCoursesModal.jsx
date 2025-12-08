@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'; 
 import '../styles/Modal.css';
 import { teachingAPI } from "../services/apiService"; 
-// 👇 1. IMPORT SOCKET
+
 import { io } from 'socket.io-client';
 
 function TeachingCoursesModal({ onClose, lecturerId }) {
@@ -10,7 +10,7 @@ function TeachingCoursesModal({ onClose, lecturerId }) {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Khóa cuộn trang khi mở Modal
+    
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => {
@@ -18,13 +18,13 @@ function TeachingCoursesModal({ onClose, lecturerId }) {
         };
     }, []); 
 
-    // 👇 2. FETCH DATA (Dùng teachingAPI)
+    
     const fetchTeachingCourses = useCallback(async () => {
         if (!lecturerId) return;
         try {
-            // Không set loading = true lại để tránh nháy màn hình khi update socket
+           
             
-            // Gọi API lấy danh sách lớp giảng viên đang dạy
+            
             const response = await teachingAPI.getMyClasses(lecturerId); 
             const data = response.data.result || [];
             
@@ -39,25 +39,21 @@ function TeachingCoursesModal({ onClose, lecturerId }) {
         }
     }, [lecturerId]);
 
-    // Gọi lần đầu khi component mount
+    
     useEffect(() => {
         if (courses.length === 0) setIsLoading(true);
         fetchTeachingCourses();
     }, [fetchTeachingCourses]);
 
-    // 👇 3. LẮNG NGHE SOCKET REAL-TIME
+    
     useEffect(() => {
         const socket = io('http://localhost:8085');
 
-        // --- CÁC SỰ KIỆN QUAN TRỌNG VỚI GIẢNG VIÊN ---
-
-        // 1. REGISTER_TEACHING / CANCEL_TEACHING:
-        // Cập nhật nếu chính giảng viên thao tác ở tab khác
+        
         socket.on('REGISTER_TEACHING', () => fetchTeachingCourses());
         socket.on('CANCEL_TEACHING', () => fetchTeachingCourses());
 
-        // 2. REGISTER_COURSE / CANCEL_COURSE (Của Sinh viên):
-        // QUAN TRỌNG: Để Giảng viên thấy Sĩ số lớp mình dạy tăng/giảm ngay lập tức
+       
         socket.on('REGISTER_COURSE', () => {
             console.log("Socket: Có sinh viên đăng ký -> Update sĩ số");
             fetchTeachingCourses();
@@ -67,11 +63,11 @@ function TeachingCoursesModal({ onClose, lecturerId }) {
             fetchTeachingCourses();
         });
 
-        // 3. Admin sửa/xóa môn học
+        
         socket.on('DELETE_COURSE', () => fetchTeachingCourses());
         socket.on('UPDATE_COURSE_SUCCESS', () => fetchTeachingCourses());
 
-        // Cleanup
+       
         return () => {
             socket.disconnect();
         };
@@ -83,7 +79,7 @@ function TeachingCoursesModal({ onClose, lecturerId }) {
             <div className="modal-content" style={{ maxWidth: '1200px', width: '90%', overscrollBehavior: 'contain' }}>
                 
                 <div className="modal-header" style={{ borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>
-                    {/* Đổi tiêu đề cho phù hợp */}
+                    {/* */}
                     <h2 style={{color: '#8e44ad', margin: 0}}>🎓 Lớp học giảng dạy</h2>
                     <button className="close-button" onClick={onClose} style={{fontSize: '24px'}}>&times;</button>
                 </div>
@@ -107,10 +103,10 @@ function TeachingCoursesModal({ onClose, lecturerId }) {
                                         <th style={{...thStyle, textAlign: 'center'}}>Học kỳ</th>
                                         <th style={{...thStyle, textAlign: 'center'}}>Tín chỉ</th>
                                         
-                                        {/* Cột Sĩ số quan trọng với GV */}
+                                        {/*  */}
                                         <th style={{...thStyle, textAlign: 'center'}}>Sĩ số hiện tại</th>
                                         
-                                        {/* Không cần cột "Giảng viên" nữa vì đây là lớp của mình */}
+                                        {/*  */}
                                     </tr>
                                 </thead>
                                 <tbody>

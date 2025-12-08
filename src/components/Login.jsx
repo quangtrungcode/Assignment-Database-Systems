@@ -12,7 +12,7 @@ function Login({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const submitting = useRef(false); // Ref to prevent double submission
+  const submitting = useRef(false); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,18 +29,18 @@ function Login({ onLoginSuccess }) {
     setToast(null);
     
     try {
-      // Step 1: Login to get the token
+     
       const loginResponse = await authAPI.login(fullName, password);
       
       if (loginResponse.data?.result?.token) {
         const token = loginResponse.data.result.token;
         localStorage.setItem('authToken', token);
         
-        // Step 2: Use the token to get user info (which includes the role)
+       
         const userResponse = await userAPI.getMyInfo();
 
         if (userResponse.data?.code === 1000) {
-          // Step 3: Pass the full user object to the parent
+          
           onLoginSuccess(userResponse.data.result);
         } else {
           throw new Error('Failed to fetch user data after login.');
@@ -92,7 +92,7 @@ function Login({ onLoginSuccess }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                autoComplete="new-password" // prevent autofill
+                autoComplete="new-password" 
               />
               <button
                 type="button"

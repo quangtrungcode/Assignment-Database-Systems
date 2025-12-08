@@ -7,7 +7,7 @@ function Toast({ message, type = 'error', duration = 3000, onClose }) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // A duration of 0 means the toast will not automatically close
+    
     if (duration === 0) return;
 
     const timer = setTimeout(() => {
@@ -23,7 +23,7 @@ function Toast({ message, type = 'error', duration = 3000, onClose }) {
   const toastContent = (
     <div className={`toast toast-${type}`}>
       <div className="toast-content">
-        {type === 'error' && <FaExclamationTriangle className="toast-icon" />} {/* Use FaExclamationTriangle */}
+        {type === 'error' && <FaExclamationTriangle className="toast-icon" />} {/* */}
         {type === 'success' && <span className="toast-icon">✓</span>}
         <div className="toast-message">
           {Array.isArray(message)
